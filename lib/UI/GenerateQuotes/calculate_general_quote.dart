@@ -43,32 +43,32 @@ class GeneralQuoteService {
     932: "Double Panel Double Leaf Gamma",
   };
   static const List<int> thicknesses = [32, 35];
-  //heigth and width in inch
+  //heigth and height in inch
   //thickness in mm
   static int? calculate(
-      int designCode, int thickness, double height, double width) {
+      int designCode, int thickness, double width, double height) {
     switch (designCode) {
       case 730:
-        return calculateSinglePanel(Category.ALPHA, thickness, height, width);
+        return calculateSinglePanel(Category.ALPHA, thickness, width, height);
       case 731:
-        return calculateSinglePanel(Category.BETA, thickness, height, width);
+        return calculateSinglePanel(Category.BETA, thickness, width, height);
       case 732:
-        return calculateSinglePanel(Category.GAMMA, thickness, height, width);
+        return calculateSinglePanel(Category.GAMMA, thickness, width, height);
       case 830:
-        return calculateDoublePanel(Category.ALPHA, thickness, height, width);
+        return calculateDoublePanel(Category.ALPHA, thickness, width, height);
       case 831:
-        return calculateDoublePanel(Category.BETA, thickness, height, width);
+        return calculateDoublePanel(Category.BETA, thickness, width, height);
       case 832:
-        return calculateDoublePanel(Category.GAMMA, thickness, height, width);
+        return calculateDoublePanel(Category.GAMMA, thickness, width, height);
       case 930:
         return calculateDoublePanelDoubleLeaf(
-            Category.ALPHA, thickness, height, width);
+            Category.ALPHA, thickness, width, height);
       case 931:
         return calculateDoublePanelDoubleLeaf(
-            Category.BETA, thickness, height, width);
+            Category.BETA, thickness, width, height);
       case 932:
         return calculateDoublePanelDoubleLeaf(
-            Category.GAMMA, thickness, height, width);
+            Category.GAMMA, thickness, width, height);
       default:
         return null;
     }
@@ -76,21 +76,22 @@ class GeneralQuoteService {
   }
 
   static int? calculateModule(
-      int thickness, double height, double width, List<int> prices) {
-    if (height <= 30) {
-      return calculateForHeightModule(width, thickness, prices.sublist(0, 4));
-    } else if (height <= 36) {
-      return calculateForHeightModule(width, thickness, prices.sublist(4, 8));
-    } else if (height <= 42) {
-      return calculateForHeightModule(width, thickness, prices.sublist(8, 12));
-    } else if (height <= 48) {
-      return calculateForHeightModule(width, thickness, prices.sublist(12, 16));
+      int thickness, double width, double height, List<int> prices) {
+    if (width <= 30) {
+      return calculateForHeightModule(height, thickness, prices.sublist(0, 4));
+    } else if (width <= 36) {
+      return calculateForHeightModule(height, thickness, prices.sublist(4, 8));
+    } else if (width <= 42) {
+      return calculateForHeightModule(height, thickness, prices.sublist(8, 12));
+    } else if (width <= 48) {
+      return calculateForHeightModule(
+          height, thickness, prices.sublist(12, 16));
     }
   }
 
   static int? calculateForHeightModule(
-      double width, int thickness, List<int> prices) {
-    if (width <= 84) {
+      double height, int thickness, List<int> prices) {
+    if (height <= 84) {
       switch (thickness) {
         case 32:
           return prices[0];
@@ -99,7 +100,7 @@ class GeneralQuoteService {
         default:
           return null;
       }
-    } else if (width <= 96) {
+    } else if (height <= 96) {
       switch (thickness) {
         case 32:
           return prices[2];
@@ -113,7 +114,7 @@ class GeneralQuoteService {
   }
 
   static int? calculateDoublePanel(
-      Category category, int thickness, double height, double width) {
+      Category category, int thickness, double width, double height) {
     List<List<int>> prices = [
       [
         4650,
@@ -173,22 +174,22 @@ class GeneralQuoteService {
     if (category == Category.ALPHA) {
       return calculateModule(
         thickness,
-        height,
         width,
+        height,
         prices[0],
       );
     } else if (category == Category.BETA) {
       return calculateModule(
         thickness,
-        height,
         width,
+        height,
         prices[1],
       );
     } else if (category == Category.GAMMA) {
       return calculateModule(
         thickness,
-        height,
         width,
+        height,
         prices[2],
       );
     }
@@ -196,7 +197,7 @@ class GeneralQuoteService {
   }
 
   static int? calculateSinglePanel(
-      Category category, int thickness, double height, double width) {
+      Category category, int thickness, double width, double height) {
     List<List<int>> prices = [
       [
         4350,
@@ -256,22 +257,22 @@ class GeneralQuoteService {
     if (category == Category.ALPHA) {
       return calculateModule(
         thickness,
-        height,
         width,
+        height,
         prices[0],
       );
     } else if (category == Category.BETA) {
       return calculateModule(
         thickness,
-        height,
         width,
+        height,
         prices[1],
       );
     } else if (category == Category.GAMMA) {
       return calculateModule(
         thickness,
-        height,
         width,
+        height,
         prices[2],
       );
     }
@@ -279,7 +280,7 @@ class GeneralQuoteService {
   }
 
   static int? calculateDoublePanelDoubleLeaf(
-      Category category, int thickness, double height, double width) {
+      Category category, int thickness, double width, double height) {
     List<List<int>> prices = [
       [
         6050,
@@ -339,22 +340,22 @@ class GeneralQuoteService {
     if (category == Category.ALPHA) {
       return calculateModule(
         thickness,
-        height,
         width,
+        height,
         prices[0],
       );
     } else if (category == Category.BETA) {
       return calculateModule(
         thickness,
-        height,
         width,
+        height,
         prices[1],
       );
     } else if (category == Category.GAMMA) {
       return calculateModule(
         thickness,
-        height,
         width,
+        height,
         prices[2],
       );
     }

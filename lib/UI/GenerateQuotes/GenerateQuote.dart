@@ -404,8 +404,8 @@ class _GenerateQuoteState extends State<GenerateQuote> {
               child: Slider(
                 value: sliderHeight,
                 min: 0,
-                max: heightUnit == Unit.INCH ? 48 : 1220,
-                divisions: heightUnit == Unit.INCH ? 48 : 1220,
+                max: heightUnit == Unit.INCH ? 96 : 2440,
+                divisions: heightUnit == Unit.INCH ? 96 : 2440,
                 label:
                     '${sliderHeight.round()} ${heightUnit.name.toString().toLowerCase()}',
                 activeColor: ColorConstants.colorPrimary,
@@ -446,7 +446,10 @@ class _GenerateQuoteState extends State<GenerateQuote> {
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: ColorConstants.colorPrimary, width: 2.0),
+                          ),
                           errorBorder: InputBorder.none,
                           disabledBorder: InputBorder.none,
                           hintText: heightUnit == Unit.INCH ? '0' : '00',
@@ -529,8 +532,8 @@ class _GenerateQuoteState extends State<GenerateQuote> {
               child: Slider(
                 value: sliderWidth,
                 min: 0,
-                max: widthUnit == Unit.INCH ? 96 : 2440,
-                divisions: widthUnit == Unit.INCH ? 96 : 2440,
+                max: widthUnit == Unit.INCH ? 48 : 1220,
+                divisions: widthUnit == Unit.INCH ? 48 : 1220,
                 label:
                     '${sliderWidth.round()} ${widthUnit.name.toString().toLowerCase()}',
                 activeColor: ColorConstants.colorPrimary,
@@ -571,7 +574,10 @@ class _GenerateQuoteState extends State<GenerateQuote> {
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: ColorConstants.colorPrimary, width: 2.0),
+                          ),
                           errorBorder: InputBorder.none,
                           disabledBorder: InputBorder.none,
                           hintText: widthUnit == Unit.INCH ? '0' : '00',
@@ -627,7 +633,7 @@ class _GenerateQuoteState extends State<GenerateQuote> {
 
   void calc() {
     price =
-        GeneralQuoteService.calculate(designCode, thickness, height, width) ??
+        GeneralQuoteService.calculate(designCode, thickness, width, height) ??
             404;
     priceController = TextEditingController(text: price.toString());
     int quantity = quantityController.text.isNotEmpty
