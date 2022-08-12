@@ -42,6 +42,7 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^20.1.57-beta
   path_provider: ^2.0.10
   flutter_file_dialog: ^2.3.0
+  http: ^0.13.5
 
 
 
