@@ -2,7 +2,6 @@
 //
 //     final product = productFromJson(jsonString);
 
-import 'package:meta/meta.dart';
 import 'dart:convert';
 
 Product productFromJson(String str) => Product.fromJson(json.decode(str));
@@ -43,36 +42,36 @@ class Product {
   DateTime updatedAt;
 
   factory Product.fromJson(Map<String, dynamic> json) => Product(
-    id: json["id"],
-    productId: json["product_id"],
-    category: json["category"],
-    subcategory: json["subcategory"],
-    product: json["product"],
-    purl: json["purl"],
-    mainPrice: json["main_price"],
-    discount: json["discount"],
-    disPrice: json["dis_price"],
-    rating: json["rating"],
-    description: json["description"],
-    tags: json["tags"],
-    createdAt: DateTime.parse(json["created_at"]),
-    updatedAt: DateTime.parse(json["updated_at"]),
-  );
+        id: json["id"],
+        productId: json["product_id"],
+        category: json["category"],
+        subcategory: json["subcategory"],
+        product: json["product"],
+        purl: json["purl"],
+        mainPrice: json["main_price"] ?? '0',
+        discount: json["discount"] ?? '0',
+        disPrice: json["dis_price"] ?? '0',
+        rating: json["rating"] ?? '0',
+        description: json["description"] ?? '',
+        tags: json["tags"] ?? '',
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "product_id": productId,
-    "category": category,
-    "subcategory": subcategory,
-    "product": product,
-    "purl": purl,
-    "main_price": mainPrice,
-    "discount": discount,
-    "dis_price": disPrice,
-    "rating": rating,
-    "description": description,
-    "tags": tags,
-    "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
-  };
+        "id": id,
+        "product_id": productId,
+        "category": category,
+        "subcategory": subcategory,
+        "product": product,
+        "purl": purl,
+        "main_price": mainPrice,
+        "discount": discount,
+        "dis_price": disPrice,
+        "rating": rating,
+        "description": description,
+        "tags": tags,
+        "created_at": createdAt.toIso8601String(),
+        "updated_at": updatedAt.toIso8601String(),
+      };
 }

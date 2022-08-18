@@ -18,7 +18,6 @@ class SubCategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(categoryId);
     return Scaffold(
       body: FutureBuilder(
         future: API.getSubcategories(categoryId: categoryId),
@@ -27,12 +26,37 @@ class SubCategoriesScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           Map data = jsonDecode(snapshot.data);
-          List dataList = data['0'];
-          print(dataList);
+          List? dataList = data['0'];
+          if (dataList == null) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Nothing to explore here, please come back later',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
           List<SubCategoryModel> subCategories = [];
           for (var data in dataList) {
-            subCategories.add(SubCategoryModel.fromJson(data,
-                isActive: dataList.first == data ? true : false));
+            subCategories.add(
+              SubCategoryModel.fromJson(data,
+                  isActive: dataList.first == data ? true : false),
+            );
+          }
+          if (subCategories.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Nothing to explore here, please come back later',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
           }
           return SinglePanel(subCategories: subCategories);
         },
@@ -103,116 +127,160 @@ class _SinglePanelState extends State<SinglePanel> {
                 padding: EdgeInsets.only(
                     left: 0.w, top: 0.h, bottom: 10.h, right: 0.h),
                 child: Container(
-                    height: 115.h,
-                    width: MediaQuery.of(context).size.width.w,
-                    padding: EdgeInsets.all(0.h),
-                    decoration: BoxDecoration(
-                      color: ColorConstants.colorGrey,
-                      borderRadius: BorderRadius.circular(5.h),
-                      image: const DecorationImage(
-                        image: AssetImage("assets/images/banner.png"),
-                        fit: BoxFit.fill,
+                  height: 115.h,
+                  width: MediaQuery.of(context).size.width.w,
+                  padding: EdgeInsets.all(0.h),
+                  decoration: BoxDecoration(
+                    color: ColorConstants.colorGrey,
+                    borderRadius: BorderRadius.circular(5.h),
+                    image: const DecorationImage(
+                      image: AssetImage("assets/images/banner.png"),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                )),
+            SizedBox(
+              height: 40,
+              child: ListView.builder(
+                itemCount: widget.subCategories.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 4),
+                    child: InkWell(
+                      onTap: () {
+                        for (int i = 0; i < widget.subCategories.length; i++) {
+                          if (i != index) {
+                            widget.subCategories[i].isActive = false;
+                          }
+                        }
+
+                        setState(() {
+                          widget.subCategories[index].isActive = true;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                            color: widget.subCategories[index].isActive ?? false
+                                ? ColorConstants.colorPrimaryDark
+                                : ColorConstants.colorGrey,
+                            borderRadius: BorderRadius.circular(5.h)),
+                        child: Center(
+                          child: Text(
+                            widget.subCategories[index].subcategory
+                                .toUpperCase(),
+                            style: TextStyle(
+                                fontFamily: 'RoMedium',
+                                color: Colors.white,
+                                fontSize: 12.sp),
+                          ),
+                        ),
                       ),
                     ),
-                    child: const Text(""))),
-            Row(
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          widget.subCategories[0].isActive = true;
-                          widget.subCategories[1].isActive = false;
-                          widget.subCategories[2].isActive = false;
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(3.h),
-                        decoration: BoxDecoration(
-                            color: widget.subCategories[0].isActive ?? false
-                                ? ColorConstants.colorPrimaryDark
-                                : ColorConstants.colorGrey,
-                            borderRadius: BorderRadius.circular(5.h)),
-                        child: Center(
-                          child: Text(
-                            widget.subCategories[0].subcategory.toUpperCase(),
-                            style: TextStyle(
-                                fontFamily: 'RoMedium',
-                                color: Colors.white,
-                                fontSize: 12.sp),
-                          ),
-                        ),
-                      ),
-                    )),
-                SizedBox(
-                  width: 5.w,
-                ),
-                Expanded(
-                    flex: 1,
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          widget.subCategories[0].isActive = false;
-                          widget.subCategories[1].isActive = true;
-                          widget.subCategories[2].isActive = false;
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(3.h),
-                        decoration: BoxDecoration(
-                            color: widget.subCategories[1].isActive ?? false
-                                ? ColorConstants.colorPrimaryDark
-                                : ColorConstants.colorGrey,
-                            borderRadius: BorderRadius.circular(5.h)),
-                        child: Center(
-                          child: Text(
-                            widget.subCategories[1].subcategory.toUpperCase(),
-                            style: TextStyle(
-                                fontFamily: 'RoMedium',
-                                color: Colors.white,
-                                fontSize: 12.sp),
-                          ),
-                        ),
-                      ),
-                    )),
-                SizedBox(
-                  width: 5.w,
-                ),
-                Expanded(
-                    flex: 1,
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          widget.subCategories[0].isActive = false;
-                          widget.subCategories[1].isActive = false;
-                          widget.subCategories[2].isActive = true;
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(3.h),
-                        decoration: BoxDecoration(
-                            color: widget.subCategories[2].isActive ?? false
-                                ? ColorConstants.colorPrimaryDark
-                                : ColorConstants.colorGrey,
-                            borderRadius: BorderRadius.circular(5.h)),
-                        child: Center(
-                          child: Text(
-                            widget.subCategories[2].subcategory.toUpperCase(),
-                            style: TextStyle(
-                                fontFamily: 'RoMedium',
-                                color: Colors.white,
-                                fontSize: 12.sp),
-                          ),
-                        ),
-                      ),
-                    )),
-                SizedBox(
-                  width: 5.w,
-                ),
-                const Expanded(flex: 1, child: Text("")),
-              ],
+                  );
+                },
+                scrollDirection: Axis.horizontal,
+              ),
             ),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //         flex: 1,
+            //         child: InkWell(
+            //           onTap: () {
+            //             setState(() {
+            //               widget.subCategories[0].isActive = true;
+            //               widget.subCategories[1].isActive = false;
+            //               widget.subCategories[2].isActive = false;
+            //             });
+            //           },
+            //           child: Container(
+            //             padding: EdgeInsets.all(3.h),
+            //             decoration: BoxDecoration(
+            //                 color: widget.subCategories[0].isActive ?? false
+            //                     ? ColorConstants.colorPrimaryDark
+            //                     : ColorConstants.colorGrey,
+            //                 borderRadius: BorderRadius.circular(5.h)),
+            //             child: Center(
+            //               child: Text(
+            //                 widget.subCategories[0].subcategory.toUpperCase(),
+            //                 style: TextStyle(
+            //                     fontFamily: 'RoMedium',
+            //                     color: Colors.white,
+            //                     fontSize: 12.sp),
+            //               ),
+            //             ),
+            //           ),
+            //         )),
+            //     SizedBox(
+            //       width: 5.w,
+            //     ),
+            //     Expanded(
+            //         flex: 1,
+            //         child: InkWell(
+            //           onTap: () {
+            //             setState(() {
+            //               widget.subCategories[0].isActive = false;
+            //               widget.subCategories[1].isActive = true;
+            //               widget.subCategories[2].isActive = false;
+            //             });
+            //           },
+            //           child: Container(
+            //             padding: EdgeInsets.all(3.h),
+            //             decoration: BoxDecoration(
+            //                 color: widget.subCategories[1].isActive ?? false
+            //                     ? ColorConstants.colorPrimaryDark
+            //                     : ColorConstants.colorGrey,
+            //                 borderRadius: BorderRadius.circular(5.h)),
+            //             child: Center(
+            //               child: Text(
+            //                 widget.subCategories[1].subcategory.toUpperCase(),
+            //                 style: TextStyle(
+            //                     fontFamily: 'RoMedium',
+            //                     color: Colors.white,
+            //                     fontSize: 12.sp),
+            //               ),
+            //             ),
+            //           ),
+            //         )),
+            //     SizedBox(
+            //       width: 5.w,
+            //     ),
+            //     Expanded(
+            //         flex: 1,
+            //         child: InkWell(
+            //           onTap: () {
+            //             setState(() {
+            //               widget.subCategories[0].isActive = false;
+            //               widget.subCategories[1].isActive = false;
+            //               widget.subCategories[2].isActive = true;
+            //             });
+            //           },
+            //           child: Container(
+            //             padding: EdgeInsets.all(3.h),
+            //             decoration: BoxDecoration(
+            //                 color: widget.subCategories[2].isActive ?? false
+            //                     ? ColorConstants.colorPrimaryDark
+            //                     : ColorConstants.colorGrey,
+            //                 borderRadius: BorderRadius.circular(5.h)),
+            //             child: Center(
+            //               child: Text(
+            //                 widget.subCategories[2].subcategory.toUpperCase(),
+            //                 style: TextStyle(
+            //                     fontFamily: 'RoMedium',
+            //                     color: Colors.white,
+            //                     fontSize: 12.sp),
+            //               ),
+            //             ),
+            //           ),
+            //         )),
+            //     SizedBox(
+            //       width: 5.w,
+            //     ),
+            //     const Expanded(flex: 1, child: Text("")),
+            //   ],
+            // ),
             SizedBox(
               height: 5.h,
             ),
@@ -318,7 +386,8 @@ class _SinglePanelState extends State<SinglePanel> {
                                                 width: 5.w,
                                               ),
                                               RatingBar.builder(
-                                                initialRating: double.parse(products[index].rating ?? '0.0'),
+                                                initialRating: double.parse(
+                                                    products[index].rating),
                                                 minRating: 1,
                                                 direction: Axis.horizontal,
                                                 allowHalfRating: true,
@@ -365,7 +434,7 @@ class _SinglePanelState extends State<SinglePanel> {
                                                 width: 12.w,
                                               ),
                                               Text(
-                                                "799",
+                                                products[index].mainPrice,
                                                 style: TextStyle(
                                                     color: ColorConstants
                                                         .colorBlack45,
@@ -435,8 +504,13 @@ class _SinglePanelState extends State<SinglePanel> {
                                                     Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                const Inquiry()));
+                                                            builder:
+                                                                (context) =>
+                                                                    Inquiry(
+                                                                      product:
+                                                                          products[
+                                                                              index],
+                                                                    )));
                                                   },
                                                   child: Image.asset(
                                                     "assets/images/customer_service.png",

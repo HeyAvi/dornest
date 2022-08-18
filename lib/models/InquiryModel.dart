@@ -12,6 +12,7 @@ class InquiryModel {
     required this.mobile,
     required this.location,
     required this.message,
+    required this.pid,
     required this.createdAt,
   });
 
@@ -20,7 +21,9 @@ class InquiryModel {
   String mobile;
   String location;
   String message;
+  String pid;
   DateTime createdAt;
+
 
   factory InquiryModel.fromJson(Map<String, dynamic> json) => InquiryModel(
     name: json["name"],
@@ -28,6 +31,7 @@ class InquiryModel {
     mobile: json["mobile"],
     location: json["location"],
     message: json["message"],
+    pid: json["pid"],
     createdAt: DateTime.parse(json["created_at"]),
   );
 
@@ -37,6 +41,7 @@ class InquiryModel {
     "mobile": mobile,
     "location": location,
     "message": message,
+    "pid": pid,
     "created_at": createdAt.toIso8601String(),
   };
 }

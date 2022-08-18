@@ -12,6 +12,10 @@ import 'package:dornest/apis/api.dart';
 import 'package:dornest/models/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../models/user_model.dart';
+import '../../shared_prefs_enum/shared_pref_enum.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -126,49 +130,52 @@ class _HomePageState extends State<HomePage> {
                           fit: BoxFit.fill,
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          const Expanded(child: Text("")),
-                          Column(
-                            children: [
-                              SizedBox(
-                                height: 20.h,
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const LoginPage()));
-                                },
-                                child: Container(
-                                  height: 24.h,
-                                  width: 90.w,
-                                  padding: EdgeInsets.only(
-                                      left: 7.w,
-                                      right: 7.w,
-                                      top: 0.h,
-                                      bottom: 0.h),
-                                  decoration: BoxDecoration(
-                                      color: ColorConstants.colorPrimary,
-                                      borderRadius:
-                                          BorderRadius.circular(30.h)),
-                                  child: Center(
-                                    child: Text(
-                                      "Login",
-                                      style: TextStyle(
-                                          fontFamily: 'PoppinsMedium',
-                                          color: ColorConstants.colorWhite,
-                                          fontSize: 15.sp),
+                      child: user == null
+                          ? Row(
+                              children: [
+                                const Expanded(child: Text("")),
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 20.h,
                                     ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ));
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const LoginPage()));
+                                      },
+                                      child: Container(
+                                        height: 24.h,
+                                        width: 90.w,
+                                        padding: EdgeInsets.only(
+                                            left: 7.w,
+                                            right: 7.w,
+                                            top: 0.h,
+                                            bottom: 0.h),
+                                        decoration: BoxDecoration(
+                                            color: ColorConstants.colorPrimary,
+                                            borderRadius:
+                                                BorderRadius.circular(30.h)),
+                                        child: Center(
+                                          child: Text(
+                                            "Login",
+                                            style: TextStyle(
+                                                fontFamily: 'PoppinsMedium',
+                                                color:
+                                                    ColorConstants.colorWhite,
+                                                fontSize: 15.sp),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                )
+                              ],
+                            )
+                          : null);
                 }),
             SizedBox(
               height: 8.h,
@@ -234,5 +241,19 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    getUserDetails();
+  }
+
+  User? user;
+
+  void getUserDetails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getString(SharedPrefEnum.userData.name));
+    if (mounted) {
+      setState(() {
+        user = User.fromJson(
+            jsonDecode(prefs.getString(SharedPrefEnum.userData.name) ?? '{}'));
+      });
+    }
   }
 }

@@ -1,14 +1,24 @@
+import 'dart:convert';
+
 import 'package:dornest/UI/DashBoard/HomePage.dart';
 import 'package:dornest/UI/SupportingWidgets/BottomNavigationBar.dart';
 import 'package:dornest/UI/SupportingWidgets/ButtonStyleOne.dart';
 import 'package:dornest/Utils/ColorConstants.dart';
 import 'package:dornest/apis/api.dart';
 import 'package:dornest/models/InquiryModel.dart';
+import 'package:dornest/models/product_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../models/user_model.dart';
+import '../../../shared_prefs_enum/shared_pref_enum.dart';
 
 class Inquiry extends StatefulWidget {
-  const Inquiry({Key? key}) : super(key: key);
+  final Product product;
+
+  const Inquiry({Key? key, required this.product}) : super(key: key);
 
   @override
   _InquiryState createState() => _InquiryState();
@@ -90,6 +100,141 @@ class _InquiryState extends State<Inquiry> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          SizedBox(
+                              height: 150.h,
+                              width: MediaQuery.of(context).size.width.w,
+                              child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 10.w,
+                                      right: 10.w,
+                                      top: 5.h,
+                                      bottom: 5.h),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                          child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 8.w,
+                                              ),
+                                              Text(
+                                                widget.product.product,
+                                                style: TextStyle(
+                                                    color: ColorConstants
+                                                        .colorBlack87,
+                                                    fontFamily: 'RoMedium',
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 13.sp),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                            height: 5.h,
+                                          ),
+                                          Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 5.w,
+                                              ),
+                                              RatingBar.builder(
+                                                initialRating: double.parse(
+                                                    widget.product.rating),
+                                                minRating: 1,
+                                                direction: Axis.horizontal,
+                                                allowHalfRating: true,
+                                                itemCount: 5,
+                                                itemSize: 13.sp,
+                                                itemPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 0.0),
+                                                itemBuilder: (context, _) =>
+                                                    Icon(
+                                                  Icons.star,
+                                                  color: Colors.amber,
+                                                  size: 5.sp,
+                                                ),
+                                                onRatingUpdate: (rating) {
+                                                  print(rating);
+                                                },
+                                              )
+                                            ],
+                                          ),
+                                          SizedBox(
+                                            height: 5.h,
+                                          ),
+                                          Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 8.w,
+                                              ),
+                                              Text(
+                                                "Price:",
+                                                style: TextStyle(
+                                                    color: ColorConstants
+                                                        .colorBlack45,
+                                                    fontFamily: 'RoMedium',
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12.sp),
+                                              ),
+                                              SizedBox(
+                                                width: 7.w,
+                                              ),
+                                              Image.asset(
+                                                "assets/images/rupee.png",
+                                                height: 12.h,
+                                                width: 12.w,
+                                              ),
+                                              Text(
+                                                widget.product.mainPrice,
+                                                style: TextStyle(
+                                                    color: ColorConstants
+                                                        .colorBlack45,
+                                                    fontFamily: 'RoMedium',
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12.sp),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      )),
+                                      SizedBox(
+                                        width: 100.w,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Card(
+                                                elevation: 2,
+                                                color:
+                                                    ColorConstants.colorWhite,
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(10),
+                                                  child: SizedBox(
+                                                    width: 70.w,
+                                                    height: 80.h,
+                                                    child: Column(
+                                                      children: [
+                                                        Image.asset(
+                                                          "assets/images/door.png",
+                                                          height: 70.h,
+                                                          width: 70.w,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                )),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ))),
                           Container(
                               width: 300.w,
                               padding: EdgeInsets.all(7.h),
@@ -283,8 +428,7 @@ class _InquiryState extends State<Inquiry> {
                                     )
                                   : isSuccess
                                       ? const CircleAvatar(
-                                          backgroundColor:
-                                           Colors.green,
+                                          backgroundColor: Colors.green,
                                           radius: 40,
                                           child: Icon(
                                             Icons.done,
@@ -337,6 +481,14 @@ class _InquiryState extends State<Inquiry> {
                                                     'Message is required';
                                               });
                                             }
+                                            SharedPreferences prefs =
+                                                await SharedPreferences
+                                                    .getInstance();
+                                            User? user = User.fromJson(
+                                                jsonDecode(prefs.getString(
+                                                        SharedPrefEnum
+                                                            .userData.name) ??
+                                                    '{}'));
                                             InquiryModel inquiryModel =
                                                 InquiryModel(
                                                     name: nameController.text,
@@ -347,6 +499,7 @@ class _InquiryState extends State<Inquiry> {
                                                         locationController.text,
                                                     message:
                                                         messageController.text,
+                                                    pid: widget.product.id,
                                                     createdAt: DateTime.now());
                                             setState(() {
                                               isLoading = true;
