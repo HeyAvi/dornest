@@ -1,12 +1,10 @@
 import 'dart:convert';
 
 import 'package:dornest/UI/Authentication/ChangePassword.dart';
-import 'package:dornest/UI/Authentication/LoginPage.dart';
 import 'package:dornest/UI/DashBoard/AboutUs/AboutUs.dart';
 import 'package:dornest/UI/DashBoard/HomePage.dart';
 import 'package:dornest/UI/DashBoard/Orders/MyOrder.dart';
 import 'package:dornest/UI/DashBoard/Profile/EditProfile.dart';
-import 'package:dornest/UI/SupportingWidgets/ButtonStyleOne.dart';
 import 'package:dornest/Utils/ColorConstants.dart';
 import 'package:dornest/models/user_model.dart';
 import 'package:dornest/shared_prefs_enum/shared_pref_enum.dart';
@@ -82,7 +80,7 @@ class _ProfileState extends State<Profile> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Text(
-                                        user?.name ?? "Guest",
+                                        ' ${user?.name ?? "Guest"}',
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                             fontFamily: 'RoMedium',
@@ -119,11 +117,12 @@ class _ProfileState extends State<Profile> {
                                 children: [
                                   GestureDetector(
                                     onTap: () {
+                                      // todo send user data to edit profile
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (Context) =>
-                                                  EditProfile()));
+                                              builder: (context) =>
+                                                  const EditProfile()));
                                     },
                                     child: Text(
                                       " EDIT ",
@@ -162,7 +161,10 @@ class _ProfileState extends State<Profile> {
                                 width: 40.w,
                               ),
                               Text(
-                                "${user?.name ?? "Guest"} ",
+                                // 'Show Dealer', // 1
+                                // 'Operation Manager', //3
+                                // 'Sales Person', // 6
+                                "${user?.role == '1' ? 'Dealer' : user?.role == '3' ? 'Operation Manager' : user?.role == '6' ? 'Sales' : ''} ",
                                 textAlign: TextAlign.start,
                                 style: TextStyle(
                                     fontFamily: 'RoMedium',
@@ -589,9 +591,10 @@ class _ProfileState extends State<Profile> {
   void getUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString(SharedPrefEnum.userData.name));
-    if(mounted){
+    if (mounted) {
       setState(() {
-        user = User.fromJson(jsonDecode(prefs.getString(SharedPrefEnum.userData.name) ?? '{}'));
+        user = User.fromJson(
+            jsonDecode(prefs.getString(SharedPrefEnum.userData.name) ?? '{}'));
       });
     }
   }

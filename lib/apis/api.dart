@@ -9,6 +9,7 @@ class API {
   static const String subcategories = '/api/get-subcategory/';
   static const String inquiryUrl = '/api/send-enquire';
   static const String signUpUrl = '/api/signup';
+  static const String loginUrl = '/api/login';
 
   static Future<String?> getProducts() async {
     var request = http.Request('GET', Uri.parse(baseUrl + products));
@@ -58,6 +59,21 @@ class API {
       return false;
     }
     return false;
+  }
+
+  static Future<String?> loginUser(
+      {required String email, required String password}) async {
+    var request = http.MultipartRequest('POST', Uri.parse(baseUrl + loginUrl));
+    try {
+      request.fields.addAll({'username': email, 'password': password});
+      http.StreamedResponse response = await request.send();
+      if (response.statusCode == 200) {
+        return response.stream.bytesToString();
+      }
+    } on Exception catch (e) {
+      return null;
+    }
+    return null;
   }
 
   static Future<String?> userSignUp({required User user}) async {

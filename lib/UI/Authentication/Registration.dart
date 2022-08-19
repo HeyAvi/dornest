@@ -674,7 +674,7 @@ class _RegistrationState extends State<Registration> {
       });
       return;
     }
-    // try {
+    try {
       Map<String, dynamic> userMap = dataMap['0'];
       User b = User.fromJson(userMap);
       var prefs = await SharedPreferences.getInstance();
@@ -684,9 +684,11 @@ class _RegistrationState extends State<Registration> {
           context,
           MaterialPageRoute(builder: (_) => const HomePage()),
           (route) => false);
-    // } catch (e) {
-    //   print(e);
-    // }
+    } catch (e) {
+      setState(() {
+        emailError = dataMap['Something went wrong 😖'];
+      });
+    }
     print('done---> $dataMap');
   }
 }

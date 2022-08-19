@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({Key? key}) : super(key: key);
+  // todo get user data and null check
 
   @override
   _EditProfileState createState() => _EditProfileState();
