@@ -3,11 +3,14 @@ import 'package:dornest/UI/DashBoard/Orders/Orders.dart';
 import 'package:dornest/UI/DashBoard/Profile/Profile.dart';
 import 'package:dornest/UI/DashBoard/Support/CustomerSupport.dart';
 import 'package:dornest/UI/GenerateQuotes/GenerateQuote.dart';
+import 'package:dornest/UI/GenerateQuotes/generate_quotes.dart';
 import 'package:dornest/Utils/ColorConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppDrawer extends StatefulWidget {
+  const AppDrawer({Key? key}) : super(key: key);
+
   @override
   _AppDrawerState createState() => _AppDrawerState();
 }
@@ -61,7 +64,7 @@ class _AppDrawerState extends State<AppDrawer> {
               GestureDetector(
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (Context) => HomePage()));
+                      MaterialPageRoute(builder: (Context) => const HomePage()));
                 },
                 child: Row(
                   children: [
@@ -142,7 +145,7 @@ class _AppDrawerState extends State<AppDrawer> {
               GestureDetector(
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (Context) => Profile()));
+                      MaterialPageRoute(builder: (Context) => const Profile()));
                 },
                 child: Row(
                   children: [
@@ -171,7 +174,7 @@ class _AppDrawerState extends State<AppDrawer> {
               GestureDetector(
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (Context) => GenerateQuote()));
+                      MaterialPageRoute(builder: (context) => const GeneratesQuotes()));
                 },
                 child: Row(
                   children: [
@@ -210,7 +213,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (Context) => CustomerSupport()));
+                          builder: (Context) => const CustomerSupport()));
                 },
                 child: Row(
                   children: [

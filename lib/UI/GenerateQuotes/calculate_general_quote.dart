@@ -43,6 +43,7 @@ class GeneralQuoteService {
     932: "Double Panel Double Leaf Gamma",
   };
   static const List<int> thicknesses = [32, 35];
+
   //heigth and height in inch
   //thickness in mm
   static int? calculate(

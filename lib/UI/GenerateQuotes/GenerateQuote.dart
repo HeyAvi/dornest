@@ -331,7 +331,7 @@ class _GenerateQuoteState extends State<GenerateQuote> {
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.h),
-        side: BorderSide(color: ColorConstants.colorPrimary),
+        side: const BorderSide(color: ColorConstants.colorPrimary),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
