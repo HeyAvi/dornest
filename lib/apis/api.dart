@@ -1,4 +1,4 @@
-import 'package:dornest/models/InquiryModel.dart';
+import 'package:dornest/models/inquiry_model.dart';
 import 'package:dornest/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,6 +10,8 @@ class API {
   static const String inquiryUrl = '/api/send-enquire';
   static const String signUpUrl = '/api/signup';
   static const String loginUrl = '/api/login';
+  static const String getAssignedEnq = '/api/get_assigned_enquires/';
+  static const String getEnqDetails = '/api/enquire_details_by_enquire_id/';
 
   static Future<String?> getProducts() async {
     var request = http.Request('GET', Uri.parse(baseUrl + products));
@@ -32,6 +34,27 @@ class API {
   static Future<String?> getSubcategories({required String categoryId}) async {
     var request =
         http.Request('GET', Uri.parse(baseUrl + subcategories + categoryId));
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      return await response.stream.bytesToString();
+    }
+    return null;
+  }
+
+  static Future<String?> getAssignedEnquiries({required String userId}) async {
+    var request =
+        http.Request('GET', Uri.parse(baseUrl + getAssignedEnq + userId));
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      return await response.stream.bytesToString();
+    }
+    return null;
+  }
+
+  static Future<String?> getEnquiriesDetails(
+      {required String enquiryId}) async {
+    var request =
+        http.Request('GET', Uri.parse(baseUrl + getEnqDetails + enquiryId));
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
       return await response.stream.bytesToString();

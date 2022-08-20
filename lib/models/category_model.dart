@@ -30,7 +30,7 @@ class CategoryModel {
         id: json["id"],
         category: json["category"],
         curl: json["curl"],
-        image: json["image"],
+        image:  json["image"],
         createdAt: json["created_at"],
         updatedAt: DateTime.parse(json["updated_at"]),
       );

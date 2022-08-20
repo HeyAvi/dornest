@@ -1,3 +1,4 @@
+import 'package:dornest/models/product_user_enq.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,9 +7,8 @@ import '../../Utils/ColorConstants.dart';
 import 'calculate_general_quote.dart';
 
 class MeasurementAndCalculations extends StatefulWidget {
-  final List<String> designCodes;
-
-  const MeasurementAndCalculations({Key? key, required this.designCodes})
+  final ProductUserModel productUserModel;
+  const MeasurementAndCalculations({Key? key, required this.productUserModel})
       : super(key: key);
 
   @override
@@ -32,10 +32,10 @@ class _MeasurementAndCalculationsState
           title: const Text('Measurement and Calculations'),
         ),
         body: ListView.builder(
-          itemCount: widget.designCodes.length,
+          itemCount: widget.productUserModel.products.length,
           itemBuilder: (BuildContext context, int index) {
             return ExpansionTile(
-                title: Text(widget.designCodes[index]),
+                title: Text(widget.productUserModel.products[index].product),
                 children: [
                   Container(
                     color: ColorConstants.colorWhite,

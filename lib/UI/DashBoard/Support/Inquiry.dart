@@ -5,7 +5,7 @@ import 'package:dornest/UI/SupportingWidgets/BottomNavigationBar.dart';
 import 'package:dornest/UI/SupportingWidgets/ButtonStyleOne.dart';
 import 'package:dornest/Utils/ColorConstants.dart';
 import 'package:dornest/apis/api.dart';
-import 'package:dornest/models/InquiryModel.dart';
+import 'package:dornest/models/inquiry_model.dart';
 import 'package:dornest/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';

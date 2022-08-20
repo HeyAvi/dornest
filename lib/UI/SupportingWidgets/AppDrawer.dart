@@ -171,32 +171,32 @@ class _AppDrawerState extends State<AppDrawer> {
               SizedBox(
                 height: 25.h,
               ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const GeneratesQuotes()));
-                },
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 5.w,
-                    ),
-                    Image.asset(
-                      "assets/images/generatedquotes.png",
-                      height: 25.h,
-                      width: 25.w,
-                      color: ColorConstants.colorWhite,
-                    ),
-                    SizedBox(
-                      width: 15.w,
-                    ),
-                    Text(
-                      "Generate Quote",
-                      style: TextStyle(color: Colors.white, fontSize: 15.sp),
-                    ),
-                  ],
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: () {
+              //     Navigator.push(context,
+              //         MaterialPageRoute(builder: (context) => const GeneratesQuotes()));
+              //   },
+              //   child: Row(
+              //     children: [
+              //       SizedBox(
+              //         width: 5.w,
+              //       ),
+              //       Image.asset(
+              //         "assets/images/generatedquotes.png",
+              //         height: 25.h,
+              //         width: 25.w,
+              //         color: ColorConstants.colorWhite,
+              //       ),
+              //       SizedBox(
+              //         width: 15.w,
+              //       ),
+              //       Text(
+              //         "Generate Quote",
+              //         style: TextStyle(color: Colors.white, fontSize: 15.sp),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               SizedBox(
                 height: 30.h,
               ),

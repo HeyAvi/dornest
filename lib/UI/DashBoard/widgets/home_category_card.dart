@@ -1,3 +1,4 @@
+import 'package:dornest/apis/api.dart';
 import 'package:dornest/models/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,10 +34,11 @@ class CategoryCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5.h),
                 image: DecorationImage(
                   image: categoryModel.image.isNotEmpty
-                      ? NetworkImage(categoryModel.image)
+                      ? NetworkImage(
+                          '${API.baseUrl}/public/assets/uploads/${categoryModel.image}')
                       : const AssetImage("assets/images/singlepannel.png")
                           as ImageProvider,
-                  fit: BoxFit.fill,
+                  fit: categoryModel.image.isNotEmpty ? BoxFit.cover : BoxFit.fill,
                 ),
               ),
               child: Column(
