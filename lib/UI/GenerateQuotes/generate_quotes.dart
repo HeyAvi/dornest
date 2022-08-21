@@ -3,7 +3,10 @@ import 'dart:core';
 
 import 'package:dornest/UI/GenerateQuotes/measurement_and_calculations.dart';
 import 'package:dornest/Utils/ColorConstants.dart';
+import 'package:dornest/models/calculation_model.dart';
 import 'package:dornest/models/enq_user.dart';
+import 'package:dornest/models/measurement_model.dart';
+import 'package:dornest/models/product_measurement_calculation_model.dart';
 import 'package:dornest/models/product_user_enq.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,7 +27,7 @@ class GeneratesQuotes extends StatefulWidget {
 }
 
 class _GeneratesQuotesState extends State<GeneratesQuotes> {
-  final List<Product> _designCodes = [];
+  final List<ProductMeasurementCalculation> _designCodes = [];
 
   @override
   void initState() {
@@ -61,7 +64,7 @@ class _GeneratesQuotesState extends State<GeneratesQuotes> {
               itemBuilder: (BuildContext context, int index) {
                 bool isSelected = false;
                 for (var element in _designCodes) {
-                  if (element.productId == products[index].productId) {
+                  if (element.product.productId == products[index].productId) {
                     isSelected = true;
                     break;
                   }
@@ -70,7 +73,8 @@ class _GeneratesQuotesState extends State<GeneratesQuotes> {
                   onTap: () {
                     if (isSelected) {
                       for (var element in _designCodes) {
-                        if (element.productId == products[index].productId) {
+                        if (element.product.productId ==
+                            products[index].productId) {
                           setState(() {
                             _designCodes.remove(element);
                           });
@@ -79,7 +83,10 @@ class _GeneratesQuotesState extends State<GeneratesQuotes> {
                       }
                     } else {
                       setState(() {
-                        _designCodes.add(products[index]);
+                        _designCodes.add(ProductMeasurementCalculation(
+                            product: products[index],
+                            measurement: Measurement(),
+                            calculation: Calculation(quantity: '1')));
                       });
                     }
                   },
@@ -97,7 +104,7 @@ class _GeneratesQuotesState extends State<GeneratesQuotes> {
                             onChanged: (onChanged) {
                               if (isSelected) {
                                 for (var element in _designCodes) {
-                                  if (element.productId ==
+                                  if (element.product.productId ==
                                       products[index].productId) {
                                     setState(() {
                                       _designCodes.remove(element);
@@ -107,7 +114,10 @@ class _GeneratesQuotesState extends State<GeneratesQuotes> {
                                 }
                               } else {
                                 setState(() {
-                                  _designCodes.add(products[index]);
+                                  _designCodes.add(ProductMeasurementCalculation(
+                                      product: products[index],
+                                      measurement: Measurement(),
+                                      calculation: Calculation(quantity: '1')));
                                 });
                               }
                             }),
@@ -138,7 +148,7 @@ class _GeneratesQuotesState extends State<GeneratesQuotes> {
           onPressed: () {
             ProductUserModel productUserModel = ProductUserModel(
               enquiryUser: widget.enquiryUser,
-              products: _designCodes,
+              productMeasurementCalculations: _designCodes,
             );
             setState(() {
               Navigator.push(

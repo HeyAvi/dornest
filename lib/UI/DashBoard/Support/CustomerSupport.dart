@@ -106,7 +106,7 @@ class _GeneratesQuotesState extends State<AllEnquiries> {
                     List<String> productIds = enquiryUser.pid.split(',');
                     return ExpansionTile(
                       title: Text(
-                        'Quotation ${index + 1}',
+                        'Enquiry ${index + 1}',
                         style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             color: ColorConstants.colorPrimary),

@@ -8,6 +8,7 @@ import 'calculate_general_quote.dart';
 
 class MeasurementAndCalculations extends StatefulWidget {
   final ProductUserModel productUserModel;
+
   const MeasurementAndCalculations({Key? key, required this.productUserModel})
       : super(key: key);
 
@@ -18,11 +19,6 @@ class MeasurementAndCalculations extends StatefulWidget {
 
 class _MeasurementAndCalculationsState
     extends State<MeasurementAndCalculations> {
-  Unit heightUnit = Unit.INCH;
-  double sliderHeight = 0;
-  double sliderWidth = 0;
-  Unit widthUnit = Unit.INCH;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,10 +28,12 @@ class _MeasurementAndCalculationsState
           title: const Text('Measurement and Calculations'),
         ),
         body: ListView.builder(
-          itemCount: widget.productUserModel.products.length,
+          itemCount:
+              widget.productUserModel.productMeasurementCalculations.length,
           itemBuilder: (BuildContext context, int index) {
             return ExpansionTile(
-                title: Text(widget.productUserModel.products[index].product),
+                title: Text(widget.productUserModel
+                    .productMeasurementCalculations[index].product.product),
                 children: [
                   Container(
                     color: ColorConstants.colorWhite,
@@ -79,27 +77,38 @@ class _MeasurementAndCalculationsState
                                               fontSize: 18.sp,
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        // DropdownButton(
-                                        //   iconEnabledColor:
-                                        //       ColorConstants.colorPrimary,
-                                        //   value: thickness ?? 32,
-                                        //   items: GeneralQuoteService.thicknesses
-                                        //       .map((int item) {
-                                        //     return DropdownMenuItem<int>(
-                                        //       value: item,
-                                        //       child: Text("$item mm",
-                                        //           style: TextStyle(
-                                        //             fontFamily: 'PoppinsMedium',
-                                        //             fontSize: 16.sp,
-                                        //           )),
-                                        //     );
-                                        //   }).toList(),
-                                        //   onChanged: (int? value) {
-                                        //     setState(() {
-                                        //       thickness = value;
-                                        //     });
-                                        //   },
-                                        // ),
+                                        DropdownButton(
+                                          iconEnabledColor:
+                                              ColorConstants.colorPrimary,
+                                          value: widget
+                                                  .productUserModel
+                                                  .productMeasurementCalculations[
+                                                      index]
+                                                  .measurement
+                                                  .thickness ??
+                                              32,
+                                          items: GeneralQuoteService.thicknesses
+                                              .map((int item) {
+                                            return DropdownMenuItem<int>(
+                                              value: item,
+                                              child: Text("$item mm",
+                                                  style: TextStyle(
+                                                    fontFamily: 'PoppinsMedium',
+                                                    fontSize: 16.sp,
+                                                  )),
+                                            );
+                                          }).toList(),
+                                          onChanged: (int? value) {
+                                            setState(() {
+                                              widget
+                                                  .productUserModel
+                                                  .productMeasurementCalculations[
+                                                      index]
+                                                  .measurement
+                                                  .thickness = value;
+                                            });
+                                          },
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -135,23 +144,46 @@ class _MeasurementAndCalculationsState
                                         padding: EdgeInsets.only(
                                             left: 0.h, right: 7.h),
                                         child: Slider(
-                                          value: sliderHeight,
+                                          value: widget
+                                                  .productUserModel
+                                                  .productMeasurementCalculations[
+                                                      index]
+                                                  .measurement
+                                                  .height ??
+                                              0,
                                           min: 0,
-                                          max: heightUnit == Unit.INCH
+                                          max: widget
+                                                      .productUserModel
+                                                      .productMeasurementCalculations[
+                                                          index]
+                                                      .measurement
+                                                      .heightUnit ==
+                                                  Unit.INCH
                                               ? 96
                                               : 2440,
-                                          divisions: heightUnit == Unit.INCH
+                                          divisions: widget
+                                                      .productUserModel
+                                                      .productMeasurementCalculations[
+                                                          index]
+                                                      .measurement
+                                                      .heightUnit ==
+                                                  Unit.INCH
                                               ? 96
                                               : 2440,
                                           label:
-                                              '${sliderHeight.round()} ${heightUnit.name.toString().toLowerCase()}',
+                                              '${widget.productUserModel.productMeasurementCalculations[index].measurement.height?.round() ?? '0'} ${widget.productUserModel.productMeasurementCalculations[index].measurement.heightUnit?.name.toLowerCase() ?? 'mm'}',
                                           activeColor:
                                               ColorConstants.colorPrimary,
                                           inactiveColor:
                                               ColorConstants.colorBlack12,
                                           onChanged: (double value) {
                                             setState(() {
-                                              sliderHeight = value;
+                                              widget
+                                                  .productUserModel
+                                                  .productMeasurementCalculations[
+                                                      index]
+                                                  .measurement
+                                                  .height = value;
                                             });
                                           },
                                         ),
@@ -164,7 +196,7 @@ class _MeasurementAndCalculationsState
                                           title: Row(
                                             children: [
                                               Text(
-                                                  "${sliderHeight.toStringAsFixed(0)}${heightUnit == Unit.INCH ? ' " ' : '.'}",
+                                                  "${widget.productUserModel.productMeasurementCalculations[index].measurement.height?.toStringAsFixed(0) ?? '0'}${widget.productUserModel.productMeasurementCalculations[index].measurement.heightUnit == Unit.INCH ? ' " ' : '.'}",
                                                   style: TextStyle(
                                                       fontFamily:
                                                           'PoppinsMedium',
@@ -206,10 +238,15 @@ class _MeasurementAndCalculationsState
                                                         InputBorder.none,
                                                     disabledBorder:
                                                         InputBorder.none,
-                                                    hintText:
-                                                        heightUnit == Unit.INCH
-                                                            ? '0'
-                                                            : '00',
+                                                    hintText: widget
+                                                                .productUserModel
+                                                                .productMeasurementCalculations[
+                                                                    index]
+                                                                .measurement
+                                                                .heightUnit ==
+                                                            Unit.INCH
+                                                        ? '0'
+                                                        : '00',
                                                     hintStyle: TextStyle(
                                                         fontFamily:
                                                             'PoppinsMedium',
@@ -222,7 +259,13 @@ class _MeasurementAndCalculationsState
                                                 ),
                                               ),
                                               Text(
-                                                heightUnit == Unit.INCH
+                                                widget
+                                                            .productUserModel
+                                                            .productMeasurementCalculations[
+                                                                index]
+                                                            .measurement
+                                                            .heightUnit ==
+                                                        Unit.INCH
                                                     ? 'soot '
                                                     : '',
                                                 textAlign: TextAlign.left,
@@ -240,7 +283,13 @@ class _MeasurementAndCalculationsState
                                           trailing: DropdownButton<Unit>(
                                             iconEnabledColor:
                                                 ColorConstants.colorPrimary,
-                                            value: heightUnit,
+                                            value: widget
+                                                    .productUserModel
+                                                    .productMeasurementCalculations[
+                                                        index]
+                                                    .measurement
+                                                    .heightUnit ??
+                                                Unit.MM,
                                             items: Unit.values.map(
                                               (Unit items) {
                                                 return DropdownMenuItem<Unit>(
@@ -256,8 +305,18 @@ class _MeasurementAndCalculationsState
                                             ).toList(),
                                             onChanged: (Unit? value) {
                                               setState(() {
-                                                sliderHeight = 0;
-                                                heightUnit = value!;
+                                                widget
+                                                    .productUserModel
+                                                    .productMeasurementCalculations[
+                                                        index]
+                                                    .measurement
+                                                    .height = 0;
+                                                widget
+                                                    .productUserModel
+                                                    .productMeasurementCalculations[
+                                                        index]
+                                                    .measurement
+                                                    .heightUnit = value!;
                                               });
                                             },
                                           ),
@@ -297,23 +356,46 @@ class _MeasurementAndCalculationsState
                                         padding: EdgeInsets.only(
                                             left: 0.h, right: 7.h),
                                         child: Slider(
-                                          value: sliderWidth,
+                                          value: widget
+                                                  .productUserModel
+                                                  .productMeasurementCalculations[
+                                                      index]
+                                                  .measurement
+                                                  .width ??
+                                              0,
                                           min: 0,
-                                          max: widthUnit == Unit.INCH
+                                          max: widget
+                                                      .productUserModel
+                                                      .productMeasurementCalculations[
+                                                          index]
+                                                      .measurement
+                                                      .widthUnit ==
+                                                  Unit.INCH
                                               ? 48
                                               : 1220,
-                                          divisions: widthUnit == Unit.INCH
+                                          divisions: widget
+                                                      .productUserModel
+                                                      .productMeasurementCalculations[
+                                                          index]
+                                                      .measurement
+                                                      .widthUnit ==
+                                                  Unit.INCH
                                               ? 48
                                               : 1220,
                                           label:
-                                              '${sliderWidth.round()} ${widthUnit.name.toString().toLowerCase()}',
+                                              '${widget.productUserModel.productMeasurementCalculations[index].measurement.width?.round() ?? '0'} ${widget.productUserModel.productMeasurementCalculations[index].measurement.widthUnit?.name.toString().toLowerCase() ?? 'mm'}',
                                           activeColor:
                                               ColorConstants.colorPrimary,
                                           inactiveColor:
                                               ColorConstants.colorBlack12,
                                           onChanged: (double value) {
                                             setState(() {
-                                              sliderWidth = value;
+                                              widget
+                                                  .productUserModel
+                                                  .productMeasurementCalculations[
+                                                      index]
+                                                  .measurement
+                                                  .width = value;
                                             });
                                           },
                                         ),
@@ -326,7 +408,7 @@ class _MeasurementAndCalculationsState
                                           title: Row(
                                             children: [
                                               Text(
-                                                  "${sliderWidth.toStringAsFixed(0)}${widthUnit == Unit.INCH ? ' " ' : '.'}",
+                                                  "${widget.productUserModel.productMeasurementCalculations[index].measurement.width?.toStringAsFixed(0) ?? '0'}${widget.productUserModel.productMeasurementCalculations[index].measurement.widthUnit == Unit.INCH ? ' " ' : '.'}",
                                                   style: TextStyle(
                                                       fontFamily:
                                                           'PoppinsMedium',
@@ -368,10 +450,15 @@ class _MeasurementAndCalculationsState
                                                         InputBorder.none,
                                                     disabledBorder:
                                                         InputBorder.none,
-                                                    hintText:
-                                                        widthUnit == Unit.INCH
-                                                            ? '0'
-                                                            : '00',
+                                                    hintText: widget
+                                                                .productUserModel
+                                                                .productMeasurementCalculations[
+                                                                    index]
+                                                                .measurement
+                                                                .widthUnit ==
+                                                            Unit.INCH
+                                                        ? '0'
+                                                        : '00',
                                                     hintStyle: TextStyle(
                                                         fontFamily:
                                                             'PoppinsMedium',
@@ -384,7 +471,13 @@ class _MeasurementAndCalculationsState
                                                 ),
                                               ),
                                               Text(
-                                                widthUnit == Unit.INCH
+                                                widget
+                                                            .productUserModel
+                                                            .productMeasurementCalculations[
+                                                                index]
+                                                            .measurement
+                                                            .widthUnit ==
+                                                        Unit.INCH
                                                     ? 'soot '
                                                     : '',
                                                 textAlign: TextAlign.left,
@@ -402,7 +495,13 @@ class _MeasurementAndCalculationsState
                                           trailing: DropdownButton<Unit>(
                                             iconEnabledColor:
                                                 ColorConstants.colorPrimary,
-                                            value: widthUnit,
+                                            value: widget
+                                                    .productUserModel
+                                                    .productMeasurementCalculations[
+                                                        index]
+                                                    .measurement
+                                                    .widthUnit ??
+                                                Unit.MM,
                                             items: Unit.values.map(
                                               (Unit items) {
                                                 return DropdownMenuItem<Unit>(
@@ -418,8 +517,18 @@ class _MeasurementAndCalculationsState
                                             ).toList(),
                                             onChanged: (Unit? value) {
                                               setState(() {
-                                                sliderWidth = 0;
-                                                widthUnit = value!;
+                                                widget
+                                                    .productUserModel
+                                                    .productMeasurementCalculations[
+                                                        index]
+                                                    .measurement
+                                                    .width = 0;
+                                                widget
+                                                    .productUserModel
+                                                    .productMeasurementCalculations[
+                                                        index]
+                                                    .measurement
+                                                    .widthUnit = value!;
                                               });
                                             },
                                           ),
@@ -451,7 +560,7 @@ class _MeasurementAndCalculationsState
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Container(
+                                  SizedBox(
                                     width: 300.w,
                                     child: Text(
                                       "Enter Quantity",
@@ -472,7 +581,23 @@ class _MeasurementAndCalculationsState
                                           borderRadius:
                                               BorderRadius.circular(5.h),
                                         ),
-                                        child: TextField(
+                                        child: TextFormField(
+                                          initialValue: widget
+                                              .productUserModel
+                                              .productMeasurementCalculations[
+                                                  index]
+                                              .calculation
+                                              .quantity,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              widget
+                                                  .productUserModel
+                                                  .productMeasurementCalculations[
+                                                      index]
+                                                  .calculation
+                                                  .quantity = val;
+                                            });
+                                          },
                                           autocorrect: true,
                                           keyboardType: TextInputType.number,
                                           decoration: InputDecoration(
@@ -532,7 +657,12 @@ class _MeasurementAndCalculationsState
                                           enabled: false,
                                           decoration: InputDecoration(
                                             prefixText: "Rs.",
-                                            hintText: '',
+                                            hintText: widget
+                                                .productUserModel
+                                                .productMeasurementCalculations[
+                                                    index]
+                                                .product
+                                                .mainPrice,
                                             hintStyle: const TextStyle(
                                                 color: Colors.grey),
                                             filled: true,
@@ -582,9 +712,25 @@ class _MeasurementAndCalculationsState
                                           borderRadius:
                                               BorderRadius.circular(5.h),
                                         ),
-                                        child: TextField(
+                                        child: TextFormField(
+                                          initialValue: widget
+                                              .productUserModel
+                                              .productMeasurementCalculations[
+                                                  index]
+                                              .calculation
+                                              .additionalDiscount,
                                           keyboardType: TextInputType.number,
                                           autocorrect: true,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              widget
+                                                  .productUserModel
+                                                  .productMeasurementCalculations[
+                                                      index]
+                                                  .calculation
+                                                  .additionalDiscount = val;
+                                            });
+                                          },
                                           decoration: InputDecoration(
                                             hintText: '',
                                             suffixText: "%",
@@ -640,6 +786,16 @@ class _MeasurementAndCalculationsState
                                         child: TextField(
                                           keyboardType: TextInputType.number,
                                           autocorrect: true,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              widget
+                                                  .productUserModel
+                                                  .productMeasurementCalculations[
+                                                      index]
+                                                  .calculation
+                                                  .gst = val;
+                                            });
+                                          },
                                           decoration: InputDecoration(
                                             prefixText: "Rs.",
                                             hintText: '',
@@ -697,7 +853,8 @@ class _MeasurementAndCalculationsState
                                           autocorrect: true,
                                           enabled: false,
                                           decoration: InputDecoration(
-                                            hintText: '',
+                                            hintText:
+                                                '${int.parse(widget.productUserModel.productMeasurementCalculations[index].calculation.quantity.isEmpty ? '1' : widget.productUserModel.productMeasurementCalculations[index].calculation.quantity) * int.parse(widget.productUserModel.productMeasurementCalculations[index].product.mainPrice) + int.parse(widget.productUserModel.productMeasurementCalculations[index].calculation.additionalDiscount?.isEmpty ?? true ? '0' : widget.productUserModel.productMeasurementCalculations[index].calculation.additionalDiscount ?? '0') + int.parse(widget.productUserModel.productMeasurementCalculations[index].calculation.gst?.isEmpty ?? true ? '0' : widget.productUserModel.productMeasurementCalculations[index].calculation.gst ?? '0')}',
                                             prefixText: "Rs.",
                                             hintStyle: const TextStyle(
                                                 color: Colors.grey),
