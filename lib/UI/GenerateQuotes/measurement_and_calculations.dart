@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:dornest/UI/DashBoard/HomePage.dart';
+import 'package:dornest/apis/api.dart';
 import 'package:dornest/models/product_user_enq.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,8 +12,10 @@ import 'calculate_general_quote.dart';
 
 class MeasurementAndCalculations extends StatefulWidget {
   final ProductUserModel productUserModel;
+  final String qid;
 
-  const MeasurementAndCalculations({Key? key, required this.productUserModel})
+  const MeasurementAndCalculations(
+      {Key? key, required this.productUserModel, required this.qid})
       : super(key: key);
 
   @override
@@ -895,6 +901,108 @@ class _MeasurementAndCalculationsState
                   ),
                 ]);
           },
+        ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              primary: isSubmitted ? Colors.green : ColorConstants.colorPrimary,
+              padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
+              elevation: 0.0,
+            ),
+            onPressed: () async {
+              if (widget
+                  .productUserModel.productMeasurementCalculations.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Please add at least one measurement'),
+                  duration: Duration(seconds: 2),
+                ));
+                return;
+              }
+              Map<String, String> aMap = {'qid': widget.qid};
+              for (int i = 0;
+                  i <
+                      widget.productUserModel.productMeasurementCalculations
+                          .length;
+                  i++) {
+                // store total in model
+                widget.productUserModel.productMeasurementCalculations[i]
+                        .calculation.total =
+                    '${int.parse(widget.productUserModel.productMeasurementCalculations[i].calculation.quantity.isEmpty ? '1' : widget.productUserModel.productMeasurementCalculations[i].calculation.quantity) * int.parse(widget.productUserModel.productMeasurementCalculations[i].product.mainPrice) + int.parse(widget.productUserModel.productMeasurementCalculations[i].calculation.additionalDiscount?.isEmpty ?? true ? '0' : widget.productUserModel.productMeasurementCalculations[i].calculation.additionalDiscount ?? '0') + int.parse(widget.productUserModel.productMeasurementCalculations[i].calculation.gst?.isEmpty ?? true ? '0' : widget.productUserModel.productMeasurementCalculations[i].calculation.gst ?? '0')}';
+
+                aMap.addAll({
+                  'thikness${i + 1}': widget
+                              .productUserModel
+                              .productMeasurementCalculations[i]
+                              .measurement
+                              .thickness !=
+                          null
+                      ? widget
+                          .productUserModel
+                          .productMeasurementCalculations[i]
+                          .measurement
+                          .thickness
+                          .toString()
+                      : '0',
+                  'width${i + 1}': widget
+                              .productUserModel
+                              .productMeasurementCalculations[i]
+                              .measurement
+                              .width !=
+                          null
+                      ? widget.productUserModel
+                          .productMeasurementCalculations[i].measurement.width
+                          .toString()
+                      : '0',
+                  'height${i + 1}': widget
+                              .productUserModel
+                              .productMeasurementCalculations[i]
+                              .measurement
+                              .height !=
+                          null
+                      ? widget.productUserModel
+                          .productMeasurementCalculations[i].measurement.height
+                          .toString()
+                      : '0',
+                  'quantity${i + 1}': widget.productUserModel
+                      .productMeasurementCalculations[i].calculation.quantity,
+                  'price${i + 1}': widget.productUserModel
+                      .productMeasurementCalculations[i].product.mainPrice,
+                  'discount${i + 1}': widget
+                          .productUserModel
+                          .productMeasurementCalculations[i]
+                          .calculation
+                          .additionalDiscount ??
+                      '0',
+                  'total${i + 1}': widget
+                          .productUserModel
+                          .productMeasurementCalculations[i]
+                          .calculation
+                          .total ??
+                      '0',
+                });
+              }
+              String? response = await API.submitMeasurementAndCalc(
+                  qid: widget.qid, formData: aMap);
+              if (response != null) {
+                Map responseMap = jsonDecode(response);
+                if (responseMap['response'] == '200') {
+                  setState(() {
+                    isSubmitted = true;
+                    Future.delayed(const Duration(seconds: 2), () {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const HomePage()),
+                          (route) => false);
+                    });
+                  });
+                }
+              }
+            },
+            child:  Text( isSubmitted ? 'Submitted' : 'Submit'),
+          ),
         ));
   }
+
+  bool isSubmitted = false;
 }

@@ -8,6 +8,8 @@ class API {
   static const String categories = '/api/categories';
   static const String subcategories = '/api/get-subcategory/';
   static const String inquiryUrl = '/api/send-enquire';
+  static const String selectProduct = '/api/select_product';
+  static const String measurementCalc = '/api/update_specifications/';
   static const String signUpUrl = '/api/signup';
   static const String loginUrl = '/api/login';
   static const String getAssignedEnq = '/api/get_assigned_enquires/';
@@ -84,6 +86,46 @@ class API {
       return false;
     }
     return false;
+  }
+
+  static Future<String?> selectProductApi(
+      {required String eid,
+      required String userId,
+      required String allProducts}) async {
+    var request =
+        http.MultipartRequest('POST', Uri.parse(baseUrl + selectProduct));
+    try {
+      print('$eid $userId $allProducts');
+
+      request.fields.addAll({
+        'allProducts': allProducts,
+        'eid': eid,
+        'user_id': userId,
+      });
+      http.StreamedResponse response = await request.send();
+      if (response.statusCode == 200) {
+        return await response.stream.bytesToString();
+      }
+    } on Exception catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  static Future<String?> submitMeasurementAndCalc(
+      {required String qid,required Map<String,String> formData}) async {
+
+    var request = http.MultipartRequest('POST', Uri.parse(baseUrl + measurementCalc + qid));
+    request.fields.addAll(formData);
+    try {
+      http.StreamedResponse response = await request.send();
+      if (response.statusCode == 200) {
+        return await response.stream.bytesToString();
+      }
+    } on Exception catch (e) {
+      return null;
+    }
+    return null;
   }
 
   static Future<String?> loginUser(

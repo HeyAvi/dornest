@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:core';
 
+import 'package:dornest/UI/Authentication/LoginPage.dart';
 import 'package:dornest/UI/GenerateQuotes/measurement_and_calculations.dart';
 import 'package:dornest/Utils/ColorConstants.dart';
 import 'package:dornest/models/calculation_model.dart';
@@ -8,11 +9,14 @@ import 'package:dornest/models/enq_user.dart';
 import 'package:dornest/models/measurement_model.dart';
 import 'package:dornest/models/product_measurement_calculation_model.dart';
 import 'package:dornest/models/product_user_enq.dart';
+import 'package:dornest/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../apis/api.dart';
 import '../../models/product_model.dart';
+import '../../shared_prefs_enum/shared_pref_enum.dart';
 
 class GeneratesQuotes extends StatefulWidget {
   final EnquiryUser enquiryUser;
@@ -114,10 +118,12 @@ class _GeneratesQuotesState extends State<GeneratesQuotes> {
                                 }
                               } else {
                                 setState(() {
-                                  _designCodes.add(ProductMeasurementCalculation(
-                                      product: products[index],
-                                      measurement: Measurement(),
-                                      calculation: Calculation(quantity: '1')));
+                                  _designCodes.add(
+                                      ProductMeasurementCalculation(
+                                          product: products[index],
+                                          measurement: Measurement(),
+                                          calculation:
+                                              Calculation(quantity: '1')));
                                 });
                               }
                             }),
@@ -145,7 +151,46 @@ class _GeneratesQuotesState extends State<GeneratesQuotes> {
             padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
             elevation: 0.0,
           ),
-          onPressed: () {
+          onPressed: _designCodes.isEmpty ? null : () async {
+            String productIds = '';
+            for (var element in _designCodes) {
+              productIds += ' ' + element.product.productId + ',';
+            }
+            productIds = productIds.substring(0, productIds.length - 1);
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            String? userData = prefs.getString(SharedPrefEnum.userData.name);
+            User user;
+            if (userData == null) {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const LoginPage()));
+              return;
+            } else {
+              user = User.fromJson(jsonDecode(userData));
+            }
+            if (user.id == null) {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const LoginPage()));
+              return;
+            }
+            String? response = await API.selectProductApi(
+                eid: widget.enquiryUser.id,
+                userId: '1', // todo: remove hardcoded user id
+                // userId: user.id!,
+                allProducts: productIds);
+            print(response);
+            if (response == null) {
+              return;
+            }
+            Map mapData = jsonDecode(response);
+            if (mapData['response'] == '404') {
+              return;
+            }
+            print(mapData);
+
+            String? qid = mapData['0'][0]['qid'];
+            if(qid == null) {
+              return;
+            }
             ProductUserModel productUserModel = ProductUserModel(
               enquiryUser: widget.enquiryUser,
               productMeasurementCalculations: _designCodes,
@@ -156,6 +201,7 @@ class _GeneratesQuotesState extends State<GeneratesQuotes> {
                 MaterialPageRoute(
                   builder: (context) => MeasurementAndCalculations(
                     productUserModel: productUserModel,
+                    qid: qid,
                   ),
                 ),
               );

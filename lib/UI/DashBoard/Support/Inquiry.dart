@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:dornest/UI/DashBoard/HomePage.dart';
 import 'package:dornest/UI/SupportingWidgets/BottomNavigationBar.dart';
-import 'package:dornest/UI/SupportingWidgets/ButtonStyleOne.dart';
 import 'package:dornest/Utils/ColorConstants.dart';
 import 'package:dornest/apis/api.dart';
 import 'package:dornest/models/inquiry_model.dart';
@@ -232,7 +231,8 @@ class _InquiryState extends State<Inquiry> {
                                                 color:
                                                     ColorConstants.colorWhite,
                                                 child: Padding(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding:
+                                                      const EdgeInsets.all(10),
                                                   child: SizedBox(
                                                     width: 70.w,
                                                     height: 80.h,
@@ -503,14 +503,6 @@ class _InquiryState extends State<Inquiry> {
                                               });
                                               return;
                                             }
-                                            SharedPreferences prefs =
-                                                await SharedPreferences
-                                                    .getInstance();
-                                            User? user = User.fromJson(
-                                                jsonDecode(prefs.getString(
-                                                        SharedPrefEnum
-                                                            .userData.name) ??
-                                                    '{}'));
                                             InquiryModel inquiryModel =
                                                 InquiryModel(
                                                     name: nameController.text,
