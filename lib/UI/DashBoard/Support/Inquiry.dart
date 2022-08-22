@@ -31,12 +31,29 @@ class _InquiryState extends State<Inquiry> {
   bool isLoading = false;
   String? mobileError;
   String? locationError;
+  User? user;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController messageController = TextEditingController();
   TextEditingController mobileController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    getSharedPrefs();
+  }
+
+  getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      String? userData = prefs.getString(SharedPrefEnum.userData.name);
+      if (userData != null) {
+        user = User.fromJson(jsonDecode(userData));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -456,30 +473,35 @@ class _InquiryState extends State<Inquiry> {
                                               setState(() {
                                                 nameError = 'Name is required';
                                               });
+                                              return;
                                             } else if (emailController
                                                 .text.isEmpty) {
                                               setState(() {
                                                 emailError =
                                                     'Email is required';
                                               });
+                                              return;
                                             } else if (mobileController
                                                 .text.isEmpty) {
                                               setState(() {
                                                 mobileError =
                                                     'Mobile is required';
                                               });
+                                              return;
                                             } else if (locationController
                                                 .text.isEmpty) {
                                               setState(() {
                                                 locationError =
                                                     'Location is required';
                                               });
+                                              return;
                                             } else if (messageController
                                                 .text.isEmpty) {
                                               setState(() {
                                                 messageError =
                                                     'Message is required';
                                               });
+                                              return;
                                             }
                                             SharedPreferences prefs =
                                                 await SharedPreferences
@@ -561,7 +583,9 @@ class _InquiryState extends State<Inquiry> {
 
   bool isSuccess = false;
 
-  Future<bool> submitData({required InquiryModel inquiryModel}) async {
-    return await API.sendInquiry(inquiry: inquiryModel);
+  Future<bool> submitData({
+    required InquiryModel inquiryModel,
+  }) async {
+    return await API.sendInquiry(inquiry: inquiryModel, user: user);
   }
 }

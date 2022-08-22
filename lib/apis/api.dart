@@ -62,7 +62,8 @@ class API {
     return null;
   }
 
-  static Future<bool> sendInquiry({required InquiryModel inquiry}) async {
+  static Future<bool> sendInquiry(
+      {required InquiryModel inquiry, User? user}) async {
     var request =
         http.MultipartRequest('POST', Uri.parse(baseUrl + inquiryUrl));
     try {
@@ -73,6 +74,7 @@ class API {
         'location': inquiry.location,
         'message': inquiry.message,
         'pid': inquiry.pid,
+        'role': user?.role == null ? '5' : '1',
       });
       http.StreamedResponse response = await request.send();
       if (response.statusCode == 200) {
