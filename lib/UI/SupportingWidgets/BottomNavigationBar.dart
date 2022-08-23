@@ -57,19 +57,19 @@ class _BottomNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
         onTap: _onItemTapped,
         items: [
           BottomNavigationBarItem(
-            icon: Image.asset('assets/images/home.png',height: 23.h,width: 23.w,color: (_selectedIndex == 0) ? ColorConstants.colorPrimary : ColorConstants.colorBlack,),
+            icon: Image.asset('assets/images/home.png',height: 20.h,width: 20.w,color: (_selectedIndex == 0) ? ColorConstants.colorPrimary : ColorConstants.colorBlack,),
             label: 'HOME',
           ),
           BottomNavigationBarItem(
-            icon: Image.asset('assets/images/enquiry.png',height: 23.h,width: 23.w,color: (_selectedIndex == 1) ? ColorConstants.colorPrimary : ColorConstants.colorBlack),
+            icon: Image.asset('assets/images/enquiry.png',height: 20.h,width: 20.w,color: (_selectedIndex == 1) ? ColorConstants.colorPrimary : ColorConstants.colorBlack),
             label: 'ENQUIRY',
           ),
           BottomNavigationBarItem(
-            icon: Image.asset('assets/images/near_by_dealer.png',height: 23.h,width: 23.w,color: (_selectedIndex == 2) ? ColorConstants.colorPrimary : ColorConstants.colorBlack),
+            icon: Image.asset('assets/images/near_by_dealer.png',height: 20.h,width: 20.w,color: (_selectedIndex == 2) ? ColorConstants.colorPrimary : ColorConstants.colorBlack),
             label: 'NEAR BY DEALER',
           ),
           BottomNavigationBarItem(
-            icon: Image.asset('assets/images/profile.png',height: 23.h,width: 23.w,color: (_selectedIndex == 3) ? ColorConstants.colorPrimary : ColorConstants.colorBlack),
+            icon: Image.asset('assets/images/profile.png',height: 20.h,width: 20.w,color: (_selectedIndex == 3) ? ColorConstants.colorPrimary : ColorConstants.colorBlack),
             label: 'PROFILE',
           )
         ],
@@ -83,18 +83,18 @@ class _BottomNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
 
 /*
 BottomNavigationBarItem(
-icon: Image.asset('assets/images/home.png',height: 23.h,width: 23.w,color: (_selectedIndex == 0) ? ColorConstants.colorPrimary : ColorConstants.colorGrey,),
+icon: Image.asset('assets/images/home.png',height: 20.h,width: 20.w,color: (_selectedIndex == 0) ? ColorConstants.colorPrimary : ColorConstants.colorGrey,),
 label: 'HOME',
 ),
 BottomNavigationBarItem(
-icon: Image.asset('assets/images/enquiry.png',height: 23.h,width: 23.w,color: (_selectedIndex == 1) ? ColorConstants.colorPrimary : ColorConstants.colorGrey),
+icon: Image.asset('assets/images/enquiry.png',height: 20.h,width: 20.w,color: (_selectedIndex == 1) ? ColorConstants.colorPrimary : ColorConstants.colorGrey),
 label: 'ENQUIRY',
 ),
 BottomNavigationBarItem(
-icon: Image.asset('assets/images/near_by_dealer.png',height: 23.h,width: 23.w,color: (_selectedIndex == 2) ? ColorConstants.colorPrimary : ColorConstants.colorGrey),
+icon: Image.asset('assets/images/near_by_dealer.png',height: 20.h,width: 20.w,color: (_selectedIndex == 2) ? ColorConstants.colorPrimary : ColorConstants.colorGrey),
 label: 'NEAR BY DEALER',
 ),
 BottomNavigationBarItem(
-icon: Image.asset('assets/images/profile.png',height: 23.h,width: 23.w,color: (_selectedIndex == 3) ? ColorConstants.colorPrimary : ColorConstants.colorGrey),
+icon: Image.asset('assets/images/profile.png',height: 20.h,width: 20.w,color: (_selectedIndex == 3) ? ColorConstants.colorPrimary : ColorConstants.colorGrey),
 label: 'PROFILE',
 ),*/

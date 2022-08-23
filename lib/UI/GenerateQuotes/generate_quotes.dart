@@ -151,62 +151,66 @@ class _GeneratesQuotesState extends State<GeneratesQuotes> {
             padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
             elevation: 0.0,
           ),
-          onPressed: _designCodes.isEmpty ? null : () async {
-            String productIds = '';
-            for (var element in _designCodes) {
-              productIds += ' ' + element.product.productId + ',';
-            }
-            productIds = productIds.substring(0, productIds.length - 1);
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            String? userData = prefs.getString(SharedPrefEnum.userData.name);
-            User user;
-            if (userData == null) {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()));
-              return;
-            } else {
-              user = User.fromJson(jsonDecode(userData));
-            }
-            if (user.id == null) {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()));
-              return;
-            }
-            String? response = await API.selectProductApi(
-                eid: widget.enquiryUser.id,
-                userId: '1', // todo: remove hardcoded user id
-                // userId: user.id!,
-                allProducts: productIds);
-            print(response);
-            if (response == null) {
-              return;
-            }
-            Map mapData = jsonDecode(response);
-            if (mapData['response'] == '404') {
-              return;
-            }
-            print(mapData);
+          onPressed: _designCodes.isEmpty
+              ? null
+              : () async {
+                  String productIds = '';
+                  for (var element in _designCodes) {
+                    productIds += ' ' + element.product.productId + ',';
+                  }
+                  productIds = productIds.substring(0, productIds.length - 1);
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  String? userData =
+                      prefs.getString(SharedPrefEnum.userData.name);
+                  User user;
+                  if (userData == null) {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const LoginPage()));
+                    return;
+                  } else {
+                    user = User.fromJson(jsonDecode(userData));
+                  }
+                  if (user.id == null) {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const LoginPage()));
+                    return;
+                  }
+                  String? response = await API.selectProductApi(
+                      eid: widget.enquiryUser.id,
+                      // userId: '1', use for hardcoded user id
+                      userId: user.id!,
+                      allProducts: productIds);
+                  print(response);
+                  if (response == null) {
+                    return;
+                  }
+                  Map mapData = jsonDecode(response);
+                  if (mapData['response'] == '404') {
+                    return;
+                  }
+                  print(mapData);
 
-            String? qid = mapData['0'][0]['qid'];
-            if(qid == null) {
-              return;
-            }
-            ProductUserModel productUserModel = ProductUserModel(
-              enquiryUser: widget.enquiryUser,
-              productMeasurementCalculations: _designCodes,
-            );
-            setState(() {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MeasurementAndCalculations(
-                    productUserModel: productUserModel,
-                    qid: qid,
-                  ),
-                ),
-              );
-            });
-          },
+                  String? qid = mapData['0'][0]['qid'];
+                  if (qid == null) {
+                    return;
+                  }
+                  ProductUserModel productUserModel = ProductUserModel(
+                    enquiryUser: widget.enquiryUser,
+                    productMeasurementCalculations: _designCodes,
+                  );
+                  setState(() {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MeasurementAndCalculations(
+                          productUserModel: productUserModel,
+                          qid: qid,
+                        ),
+                      ),
+                    );
+                  });
+                },
           child: const Text('Next'),
         ),
       ),

@@ -2,13 +2,12 @@
 //
 //     final assignedEnquiry = assignedEnquiryFromJson(jsonString);
 
+import 'package:meta/meta.dart';
 import 'dart:convert';
 
-AssignedEnquiry assignedEnquiryFromJson(String str) =>
-    AssignedEnquiry.fromJson(json.decode(str));
+AssignedEnquiry assignedEnquiryFromJson(String str) => AssignedEnquiry.fromJson(json.decode(str));
 
-String assignedEnquiryToJson(AssignedEnquiry data) =>
-    json.encode(data.toJson());
+String assignedEnquiryToJson(AssignedEnquiry data) => json.encode(data.toJson());
 
 class AssignedEnquiry {
   AssignedEnquiry({
@@ -28,33 +27,32 @@ class AssignedEnquiry {
   String enquireId;
   String enquireReceiver;
   String quoteSend;
-  String? quotationId;
+  dynamic quotationId;
   String quoteAccepted;
   DateTime createdAt;
   DateTime updatedAt;
 
-  factory AssignedEnquiry.fromJson(Map<String, dynamic> json) =>
-      AssignedEnquiry(
-        id: json["id"],
-        assignerId: json["assigner_id"],
-        enquireId: json["enquire_id"],
-        enquireReceiver: json["enquire_receiver"],
-        quoteSend: json["quote_send"],
-        quotationId: json["quotation_id"],
-        quoteAccepted: json["quote_accepted"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
-      );
+  factory AssignedEnquiry.fromJson(Map<String, dynamic> json) => AssignedEnquiry(
+    id: json["id"],
+    assignerId: json["assigner_id"],
+    enquireId: json["enquire_id"],
+    enquireReceiver: json["enquire_receiver"],
+    quoteSend: json["quote_send"],
+    quotationId: json["quotation_id"],
+    quoteAccepted: json["quote_accepted"],
+    createdAt: DateTime.parse(json["created_at"]),
+    updatedAt: DateTime.parse(json["updated_at"]),
+  );
 
-  Map<String, String?> toJson() => {
-        "id": id,
-        "assigner_id": assignerId,
-        "enquire_id": enquireId,
-        "enquire_receiver": enquireReceiver,
-        "quote_send": quoteSend,
-        "quotation_id": quotationId,
-        "quote_accepted": quoteAccepted,
-        "created_at": createdAt.toIso8601String(),
-        "updated_at": updatedAt.toIso8601String(),
-      };
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "assigner_id": assignerId,
+    "enquire_id": enquireId,
+    "enquire_receiver": enquireReceiver,
+    "quote_send": quoteSend,
+    "quotation_id": quotationId,
+    "quote_accepted": quoteAccepted,
+    "created_at": createdAt.toIso8601String(),
+    "updated_at": updatedAt.toIso8601String(),
+  };
 }

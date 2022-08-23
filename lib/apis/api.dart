@@ -14,6 +14,7 @@ class API {
   static const String loginUrl = '/api/login';
   static const String getAssignedEnq = '/api/get_assigned_enquires/';
   static const String getEnqDetails = '/api/enquire_details_by_enquire_id/';
+  static const String operatorEnquiries = '/api/enquires';
 
   static Future<String?> getProducts() async {
     var request = http.Request('GET', Uri.parse(baseUrl + products));
@@ -113,9 +114,9 @@ class API {
   }
 
   static Future<String?> submitMeasurementAndCalc(
-      {required String qid,required Map<String,String> formData}) async {
-
-    var request = http.MultipartRequest('POST', Uri.parse(baseUrl + measurementCalc + qid));
+      {required String qid, required Map<String, String> formData}) async {
+    var request = http.MultipartRequest(
+        'POST', Uri.parse(baseUrl + measurementCalc + qid));
     request.fields.addAll(formData);
     try {
       http.StreamedResponse response = await request.send();
@@ -133,6 +134,20 @@ class API {
     var request = http.MultipartRequest('POST', Uri.parse(baseUrl + loginUrl));
     try {
       request.fields.addAll({'username': email, 'password': password});
+      http.StreamedResponse response = await request.send();
+      if (response.statusCode == 200) {
+        return response.stream.bytesToString();
+      }
+    } on Exception catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  static Future<String?> getAllOperatorEnquiries() async {
+    var request =
+        http.MultipartRequest('GET', Uri.parse(baseUrl + operatorEnquiries));
+    try {
       http.StreamedResponse response = await request.send();
       if (response.statusCode == 200) {
         return response.stream.bytesToString();

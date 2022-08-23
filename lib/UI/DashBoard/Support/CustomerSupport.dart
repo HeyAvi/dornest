@@ -46,19 +46,25 @@ class _CustomerSupportState extends State<CustomerSupport> {
 
   @override
   Widget build(BuildContext context) {
-    return user == null ? const GuestUsers() : const AllEnquiries();
+    return user == null
+        ? const GuestUsers()
+        : AllEnquiries(
+            user: user!,
+          );
   }
 }
 
 class AllEnquiries extends StatefulWidget {
-  const AllEnquiries({Key? key}) : super(key: key);
+  final User user;
+
+  const AllEnquiries({Key? key, required this.user}) : super(key: key);
 
   @override
   State<AllEnquiries> createState() => _GeneratesQuotesState();
 }
 
 class _GeneratesQuotesState extends State<AllEnquiries> {
-  final List<Product> enquiriesProduct = [];
+  // final List<Product> enquiriesProduct = [];
 
   @override
   Widget build(BuildContext context) {
@@ -69,16 +75,27 @@ class _GeneratesQuotesState extends State<AllEnquiries> {
         title: const Text('Assigned Enquiries'),
       ),
       body: FutureBuilder(
-          future: API.getAssignedEnquiries(userId: '1'),
-          // todo user id default here
+          future: API.getAssignedEnquiries(userId: widget.user.id ?? ''),
           builder: (context, AsyncSnapshot snapshot) {
             if (snapshot.data == null) {
               return const Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  color: ColorConstants.colorPrimary,
+                ),
               );
             }
             Map data = jsonDecode(snapshot.data);
-            List dataList = data['0'];
+            if (data['response'] == '400') {
+              return const Center(
+                child: Text('No Enquiries Assigned'),
+              );
+            }
+            List? dataList = data['0'];
+            if (dataList == null) {
+              return const Center(
+                child: Text('No Enquires'),
+              );
+            }
             if (dataList.isEmpty) {
               return const Center(
                 child: Text('No Enquires'),
@@ -95,7 +112,6 @@ class _GeneratesQuotesState extends State<AllEnquiries> {
                 return FutureBuilder(
                   future: API.getEnquiriesDetails(
                       enquiryId: assignedEnq[index].enquireId),
-                  // todo enquiry id default here
                   builder:
                       (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                     if (snapshot.data == null) {
@@ -146,23 +162,50 @@ class _GeneratesQuotesState extends State<AllEnquiries> {
                                   )
                                 ],
                               ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => GeneratesQuotes(
-                                        enquiryUser: enquiryUser,
-                                        productIds: productIds,
+                              assignedEnq[index].quoteSend == '0'
+                                  ? ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                GeneratesQuotes(
+                                              enquiryUser: enquiryUser,
+                                              productIds: productIds,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text(
+                                        'Generate\nQuotation',
+                                        textAlign: TextAlign.center,
                                       ),
+                                      style: ElevatedButton.styleFrom(
+                                          primary: ColorConstants.colorPrimary,
+                                          padding: const EdgeInsets.all(8),
+                                          elevation: 0),
+                                    )
+                                  : ElevatedButton(
+                                      onPressed: () {
+                                        // Navigator.push(
+                                        //   context,
+                                        //   MaterialPageRoute(
+                                        //     builder: (context) => GeneratesQuotes(
+                                        //       enquiryUser: enquiryUser,
+                                        //       productIds: productIds,
+                                        //     ),
+                                        //   ),
+                                        // );
+                                      },
+                                      child: const Text(
+                                        'View\nQuotation',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                          primary: ColorConstants.colorPrimary,
+                                          padding: const EdgeInsets.all(8),
+                                          elevation: 0),
                                     ),
-                                  );
-                                },
-                                child: const Text('Get Quotation'),
-                                style: ElevatedButton.styleFrom(
-                                    primary: ColorConstants.colorPrimary,
-                                    elevation: 0),
-                              ),
                             ],
                           ),
                         ),
@@ -186,7 +229,7 @@ class _GeneratesQuotesState extends State<AllEnquiries> {
                                     products.add(Product.fromJson(data));
                                   }
                                 }
-                                enquiriesProduct.addAll(products);
+                                // enquiriesProduct.addAll(products);
                                 if (products.isEmpty) {
                                   return const Center(
                                     child: Text('No Products Found'),

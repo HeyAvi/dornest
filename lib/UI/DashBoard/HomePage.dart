@@ -10,6 +10,7 @@ import 'package:dornest/Utils/Clippers/CurvedBottomClipper.dart';
 import 'package:dornest/Utils/ColorConstants.dart';
 import 'package:dornest/apis/api.dart';
 import 'package:dornest/models/category_model.dart';
+import 'package:dornest/models/operation_enquiry_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,6 +28,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _current = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool isLoading = true;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +97,7 @@ class _HomePageState extends State<HomePage> {
               )
             ],
           )),
-      drawer: Drawer(
+      drawer: const Drawer(
         backgroundColor: Colors.transparent,
         child: AppDrawer(),
       ),
@@ -103,135 +105,379 @@ class _HomePageState extends State<HomePage> {
           child: Padding(
         padding:
             EdgeInsets.only(left: 20.w, top: 10.h, bottom: 10.h, right: 20.h),
-        child: Column(
-          children: [
-            CarouselSlider.builder(
-                itemCount: 4,
-                options: CarouselOptions(
-                    height: 120.h,
-                    aspectRatio: 16 / 9,
-                    viewportFraction: 1.0,
-                    onPageChanged: (index, reason) {
-                      setState(() {
-                        _current = index + 1;
-                      });
-                    }),
-                itemBuilder:
-                    (BuildContext context, int itemIndex, int pageViewIndex) {
-                  return Container(
-                      width: MediaQuery.of(context).size.width.w,
-                      padding: EdgeInsets.all(10.h),
-                      margin: EdgeInsets.only(left: 2.w, right: 2.w),
-                      decoration: BoxDecoration(
-                        //color: ColorConstants.colorPrimary,
-                        borderRadius: BorderRadius.circular(5.h),
-                        image: const DecorationImage(
-                          image: AssetImage("assets/images/banner.png"),
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                      child: user == null
-                          ? Row(
-                              children: [
-                                const Expanded(child: Text("")),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 20.h,
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const LoginPage()));
-                                      },
-                                      child: Container(
-                                        height: 24.h,
-                                        width: 90.w,
-                                        padding: EdgeInsets.only(
-                                            left: 7.w,
-                                            right: 7.w,
-                                            top: 0.h,
-                                            bottom: 0.h),
-                                        decoration: BoxDecoration(
-                                            color: ColorConstants.colorPrimary,
-                                            borderRadius:
-                                                BorderRadius.circular(30.h)),
-                                        child: Center(
-                                          child: Text(
-                                            "Login",
-                                            style: TextStyle(
-                                                fontFamily: 'PoppinsMedium',
-                                                color:
-                                                    ColorConstants.colorWhite,
-                                                fontSize: 15.sp),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                )
-                              ],
-                            )
-                          : null);
-                }),
-            SizedBox(
-              height: 8.h,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [1, 2, 3, 4].map((i) {
-                int index = i; //are changed
-                return Container(
-                  width: 6.h,
-                  height: 6.h,
-                  margin: EdgeInsets.symmetric(vertical: 0.0, horizontal: 2.h),
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _current == index
-                          ? ColorConstants.colorPrimary
-                          : const Color.fromRGBO(0, 0, 0, 0.4)),
-                );
-              }).toList(),
-            ),
-            Expanded(
-                flex: 1,
-                child: FutureBuilder(
-                    future: API.getCategories(),
-                    builder: (context, AsyncSnapshot snapshot) {
-                      if (snapshot.data == null) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (!snapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      Map data = jsonDecode(snapshot.data);
-                      List dataList = data['0'];
-                      if (dataList.isEmpty) {
-                        return const Center(
-                          child: Text('No Categories'),
-                        );
-                      }
-                      List<CategoryModel> categoryList = [];
-                      for (var data in dataList) {
-                        categoryList.add(CategoryModel.fromJson(data));
-                      }
-                      return ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: categoryList.length,
-                          itemBuilder: (context, index) {
-                            return CategoryCard(
-                              categoryModel: categoryList[index],
+        child: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: ColorConstants.colorPrimary,
+                ),
+              )
+            : user != null
+                ? user!.role == '3'
+                    ? FutureBuilder(
+                        future: API.getAllOperatorEnquiries(),
+                        builder: (context, AsyncSnapshot snapshot) {
+                          print(snapshot.data);
+                          if (snapshot.data == null) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: ColorConstants.colorPrimary,
+                              ),
                             );
-                          });
-                    })),
-          ],
-        ),
+                          }
+                          Map mapData = jsonDecode(snapshot.data);
+                          List dataList = mapData['0'];
+                          if (dataList.isEmpty) {
+                            return const Center(
+                              child: Text('No Enquiries'),
+                            );
+                          }
+                          List<OperationEnquiry> operationEnquiries = [];
+
+                          for (var data in dataList) {
+                            operationEnquiries
+                                .add(OperationEnquiry.fromJson(data));
+                          }
+                          return ListView.builder(
+                            itemCount: operationEnquiries.length,
+                            itemBuilder: (
+                              BuildContext context,
+                              int index,
+                            ) {
+                              return Card(
+                                  elevation: 3,
+                                  child: ListTile(
+                                    title: Text(operationEnquiries[index].name),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            'type:${operationEnquiries[index].role == '1' ? 'Dealer' : operationEnquiries[index].role == '5' ? 'Guest' : 'Sales'}'),
+                                        Text(operationEnquiries[index].email),
+                                        Text(operationEnquiries[index].mobile),
+                                        Text(operationEnquiries[index]
+                                                .location ??
+                                            ''),
+                                        Text(
+                                            operationEnquiries[index].message ??
+                                                ''),
+                                      ],
+                                    ),
+                                    trailing: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: ColorConstants.colorPrimary,
+                                        elevation: 0,
+                                        padding: const EdgeInsets.all(0),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12.0)),
+                                      ),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                            title: const Text(
+                                                'Choose the type of user to assign this Enquiry?'),
+                                            actions: [
+                                              operationEnquiries[index].role ==
+                                                      '1'
+                                                  ? Container()
+                                                  : TextButton(
+                                                      child:
+                                                          const Text('Dealer'),
+                                                      onPressed: () {
+                                                        // todo from here
+                                                        //open bottom sheet
+                                                      },
+                                                    ),
+                                              TextButton(
+                                                  child: const Text('Sales'),
+                                                  // todo from here
+                                                  //open bottom sheet
+                                                  onPressed: () {})
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('Assign'),
+                                    ),
+                                  ));
+                            },
+                          );
+                        })
+                    : Column(
+                        children: [
+                          CarouselSlider.builder(
+                              itemCount: 4,
+                              options: CarouselOptions(
+                                  height: 120.h,
+                                  aspectRatio: 16 / 9,
+                                  viewportFraction: 1.0,
+                                  onPageChanged: (index, reason) {
+                                    setState(() {
+                                      _current = index + 1;
+                                    });
+                                  }),
+                              itemBuilder: (BuildContext context, int itemIndex,
+                                  int pageViewIndex) {
+                                return Container(
+                                    width: MediaQuery.of(context).size.width.w,
+                                    padding: EdgeInsets.all(10.h),
+                                    margin:
+                                        EdgeInsets.only(left: 2.w, right: 2.w),
+                                    decoration: BoxDecoration(
+                                      //color: ColorConstants.colorPrimary,
+                                      borderRadius: BorderRadius.circular(5.h),
+                                      image: const DecorationImage(
+                                        image: AssetImage(
+                                            "assets/images/banner.png"),
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                    child: user == null
+                                        ? Row(
+                                            children: [
+                                              const Expanded(child: Text("")),
+                                              Column(
+                                                children: [
+                                                  SizedBox(
+                                                    height: 20.h,
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.pushReplacement(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  const LoginPage()));
+                                                    },
+                                                    child: Container(
+                                                      height: 24.h,
+                                                      width: 90.w,
+                                                      padding: EdgeInsets.only(
+                                                          left: 7.w,
+                                                          right: 7.w,
+                                                          top: 0.h,
+                                                          bottom: 0.h),
+                                                      decoration: BoxDecoration(
+                                                          color: ColorConstants
+                                                              .colorPrimary,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      30.h)),
+                                                      child: Center(
+                                                        child: Text(
+                                                          "Login",
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  'PoppinsMedium',
+                                                              color:
+                                                                  ColorConstants
+                                                                      .colorWhite,
+                                                              fontSize: 15.sp),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              )
+                                            ],
+                                          )
+                                        : null);
+                              }),
+                          SizedBox(
+                            height: 8.h,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [1, 2, 3, 4].map((i) {
+                              int index = i; //are changed
+                              return Container(
+                                width: 6.h,
+                                height: 6.h,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 0.0, horizontal: 2.h),
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _current == index
+                                        ? ColorConstants.colorPrimary
+                                        : const Color.fromRGBO(0, 0, 0, 0.4)),
+                              );
+                            }).toList(),
+                          ),
+                          Expanded(
+                              flex: 1,
+                              child: FutureBuilder(
+                                  future: API.getCategories(),
+                                  builder: (context, AsyncSnapshot snapshot) {
+                                    if (snapshot.data == null) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    } else if (!snapshot.hasData) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                    Map data = jsonDecode(snapshot.data);
+                                    List dataList = data['0'];
+                                    if (dataList.isEmpty) {
+                                      return const Center(
+                                        child: Text('No Categories'),
+                                      );
+                                    }
+                                    List<CategoryModel> categoryList = [];
+                                    for (var data in dataList) {
+                                      categoryList
+                                          .add(CategoryModel.fromJson(data));
+                                    }
+                                    return ListView.builder(
+                                        physics: const BouncingScrollPhysics(),
+                                        itemCount: categoryList.length,
+                                        itemBuilder: (context, index) {
+                                          return CategoryCard(
+                                            categoryModel: categoryList[index],
+                                          );
+                                        });
+                                  })),
+                        ],
+                      )
+                : Column(
+                    children: [
+                      CarouselSlider.builder(
+                          itemCount: 4,
+                          options: CarouselOptions(
+                              height: 120.h,
+                              aspectRatio: 16 / 9,
+                              viewportFraction: 1.0,
+                              onPageChanged: (index, reason) {
+                                setState(() {
+                                  _current = index + 1;
+                                });
+                              }),
+                          itemBuilder: (BuildContext context, int itemIndex,
+                              int pageViewIndex) {
+                            return Container(
+                                width: MediaQuery.of(context).size.width.w,
+                                padding: EdgeInsets.all(10.h),
+                                margin: EdgeInsets.only(left: 2.w, right: 2.w),
+                                decoration: BoxDecoration(
+                                  //color: ColorConstants.colorPrimary,
+                                  borderRadius: BorderRadius.circular(5.h),
+                                  image: const DecorationImage(
+                                    image:
+                                        AssetImage("assets/images/banner.png"),
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                                child: user == null
+                                    ? Row(
+                                        children: [
+                                          const Expanded(child: Text("")),
+                                          Column(
+                                            children: [
+                                              SizedBox(
+                                                height: 20.h,
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              const LoginPage()));
+                                                },
+                                                child: Container(
+                                                  height: 24.h,
+                                                  width: 90.w,
+                                                  padding: EdgeInsets.only(
+                                                      left: 7.w,
+                                                      right: 7.w,
+                                                      top: 0.h,
+                                                      bottom: 0.h),
+                                                  decoration: BoxDecoration(
+                                                      color: ColorConstants
+                                                          .colorPrimary,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              30.h)),
+                                                  child: Center(
+                                                    child: Text(
+                                                      "Login",
+                                                      style: TextStyle(
+                                                          fontFamily:
+                                                              'PoppinsMedium',
+                                                          color: ColorConstants
+                                                              .colorWhite,
+                                                          fontSize: 15.sp),
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          )
+                                        ],
+                                      )
+                                    : null);
+                          }),
+                      SizedBox(
+                        height: 8.h,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [1, 2, 3, 4].map((i) {
+                          int index = i; //are changed
+                          return Container(
+                            width: 6.h,
+                            height: 6.h,
+                            margin: EdgeInsets.symmetric(
+                                vertical: 0.0, horizontal: 2.h),
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _current == index
+                                    ? ColorConstants.colorPrimary
+                                    : const Color.fromRGBO(0, 0, 0, 0.4)),
+                          );
+                        }).toList(),
+                      ),
+                      Expanded(
+                          flex: 1,
+                          child: FutureBuilder(
+                              future: API.getCategories(),
+                              builder: (context, AsyncSnapshot snapshot) {
+                                if (snapshot.data == null) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else if (!snapshot.hasData) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                                Map data = jsonDecode(snapshot.data);
+                                List dataList = data['0'];
+                                if (dataList.isEmpty) {
+                                  return const Center(
+                                    child: Text('No Categories'),
+                                  );
+                                }
+                                List<CategoryModel> categoryList = [];
+                                for (var data in dataList) {
+                                  categoryList
+                                      .add(CategoryModel.fromJson(data));
+                                }
+                                return ListView.builder(
+                                    physics: const BouncingScrollPhysics(),
+                                    itemCount: categoryList.length,
+                                    itemBuilder: (context, index) {
+                                      return CategoryCard(
+                                        categoryModel: categoryList[index],
+                                      );
+                                    });
+                              })),
+                    ],
+                  ),
       )),
       bottomNavigationBar: BottomNavigationBarWidget(),
     ));
@@ -253,6 +499,8 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         user = User.fromJson(
             jsonDecode(prefs.getString(SharedPrefEnum.userData.name) ?? '{}'));
+        isLoading = false;
+        print('here ${user?.name}');
       });
     }
   }
