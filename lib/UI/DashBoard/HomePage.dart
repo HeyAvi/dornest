@@ -11,6 +11,7 @@ import 'package:dornest/Utils/ColorConstants.dart';
 import 'package:dornest/apis/api.dart';
 import 'package:dornest/models/category_model.dart';
 import 'package:dornest/models/operation_enquiry_model.dart';
+import 'package:dornest/models/user_role_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -116,7 +117,6 @@ class _HomePageState extends State<HomePage> {
                     ? FutureBuilder(
                         future: API.getAllOperatorEnquiries(),
                         builder: (context, AsyncSnapshot snapshot) {
-                          print(snapshot.data);
                           if (snapshot.data == null) {
                             return const Center(
                               child: CircularProgressIndicator(
@@ -186,6 +186,12 @@ class _HomePageState extends State<HomePage> {
                                                       child:
                                                           const Text('Dealer'),
                                                       onPressed: () {
+                                                        Navigator.pop(context);
+                                                        showBottomSheetWidget(
+                                                            role: '1',
+                                                            operationEnquiry:
+                                                                operationEnquiries[
+                                                                    index]);
                                                         // todo from here
                                                         //open bottom sheet
                                                       },
@@ -194,7 +200,14 @@ class _HomePageState extends State<HomePage> {
                                                   child: const Text('Sales'),
                                                   // todo from here
                                                   //open bottom sheet
-                                                  onPressed: () {})
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    showBottomSheetWidget(
+                                                        role: '6',
+                                                        operationEnquiry:
+                                                            operationEnquiries[
+                                                                index]);
+                                                  })
                                             ],
                                           ),
                                         );
@@ -481,6 +494,99 @@ class _HomePageState extends State<HomePage> {
       )),
       bottomNavigationBar: BottomNavigationBarWidget(),
     ));
+  }
+
+  void showBottomSheetWidget(
+      {required String role, required OperationEnquiry operationEnquiry}) {
+    showModalBottomSheet(
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20.0),
+          topRight: Radius.circular(20.0),
+        )),
+        context: context,
+        builder: (_) => FutureBuilder(
+              future: API.getUserByRoleId(roleId: role),
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                if (snapshot.data == null) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                Map mapData = jsonDecode(snapshot.data);
+                List? dataList = mapData['0'];
+                if (dataList == null) {
+                  return const Center(
+                    child: Text('No Users'),
+                  );
+                } else if (dataList.isEmpty) {
+                  return const Center(
+                    child: Text('No Users'),
+                  );
+                }
+                List<UserRoleType> userList = [];
+                for (var data in dataList) {
+                  userList.add(UserRoleType.fromJson(data));
+                }
+                return ListView.builder(
+                  itemCount: userList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                        child: ListTile(
+                      title: Text(
+                        userList[index].name,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        if (user?.id == null) {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginPage()));
+                          return;
+                        }
+                        showDialog(
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20.0))),
+                            title: Center(
+                              child: Column(
+                                children: [
+                                  const CircularProgressIndicator(
+                                    color: ColorConstants.colorPrimary,
+                                  ),
+                                  Text(
+                                    'Assigning to ${userList[index].name}',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                        try {
+                          var a = await API.assignEnquiry(
+                              enquireId: operationEnquiry.id,
+                              user: userList[index].id,
+                              assigner: user!.id!);
+                          print(a);
+                          Navigator.pop(_);
+                        } catch (e) {
+                          Navigator.pop(_);
+                          print('Something went wrong!');
+                        }
+                      },
+                    ));
+                  },
+                );
+              },
+            ));
   }
 
   @override

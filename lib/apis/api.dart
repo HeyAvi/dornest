@@ -15,6 +15,8 @@ class API {
   static const String getAssignedEnq = '/api/get_assigned_enquires/';
   static const String getEnqDetails = '/api/enquire_details_by_enquire_id/';
   static const String operatorEnquiries = '/api/enquires';
+  static const String getUserByRoleIdPath = '/api/get_users_by_role_id/';
+  static const String assignEnqUrl = '/api/assign_enquire';
 
   static Future<String?> getProducts() async {
     var request = http.Request('GET', Uri.parse(baseUrl + products));
@@ -27,6 +29,33 @@ class API {
 
   static Future<String?> getCategories() async {
     var request = http.Request('GET', Uri.parse(baseUrl + categories));
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      return await response.stream.bytesToString();
+    }
+    return null;
+  }
+
+  static Future<String?> getUserByRoleId({required String roleId}) async {
+    var request =
+        http.Request('GET', Uri.parse(baseUrl + getUserByRoleIdPath + roleId));
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      return await response.stream.bytesToString();
+    }
+    return null;
+  }
+
+  static Future<String?> assignEnquiry(
+      {required String enquireId,
+      required String user,
+      required String assigner}) async {
+    var request = http.MultipartRequest('POST', Uri.parse(baseUrl + assignEnqUrl));
+    request.fields.addAll({
+      'enquire_id': enquireId,
+      'user': user,
+      'assigner': assigner,
+    });
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
       return await response.stream.bytesToString();
