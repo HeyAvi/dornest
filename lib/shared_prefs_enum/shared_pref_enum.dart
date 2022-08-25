@@ -1,3 +1,4 @@
 enum SharedPrefEnum {
-  userData
+  userData,
+  guestMobile
 }

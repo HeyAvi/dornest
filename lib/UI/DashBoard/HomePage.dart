@@ -125,6 +125,7 @@ class _HomePageState extends State<HomePage> {
                             );
                           }
                           Map mapData = jsonDecode(snapshot.data);
+                          print(mapData);
                           List dataList = mapData['0'];
                           if (dataList.isEmpty) {
                             return const Center(
@@ -506,7 +507,7 @@ class _HomePageState extends State<HomePage> {
           topRight: Radius.circular(20.0),
         )),
         context: context,
-        builder: (_) => FutureBuilder(
+        builder: (builder) => FutureBuilder(
               future: API.getUserByRoleId(roleId: role),
               builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                 if (snapshot.data == null) {
@@ -543,43 +544,49 @@ class _HomePageState extends State<HomePage> {
                         Navigator.pop(context);
                         if (user?.id == null) {
                           Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginPage()));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ),
+                          );
                           return;
                         }
+                        BuildContext? ctx;
                         showDialog(
-                          barrierDismissible: false,
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20.0))),
-                            title: Center(
-                              child: Column(
-                                children: [
-                                  const CircularProgressIndicator(
-                                    color: ColorConstants.colorPrimary,
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) {
+                              ctx = context;
+                              return AlertDialog(
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20.0)),
+                                ),
+                                title: Center(
+                                  child: Column(
+                                    children: [
+                                      const CircularProgressIndicator(
+                                        color: ColorConstants.colorPrimary,
+                                      ),
+                                      Text(
+                                          'Assigning to ${userList[index].name}',
+                                          overflow: TextOverflow.ellipsis),
+                                    ],
                                   ),
-                                  Text(
-                                    'Assigning to ${userList[index].name}',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
+                                ),
+                              );
+                            });
                         try {
+                          print(
+                              '${userList[index].id} ${operationEnquiry.id} ${user?.id}');
                           var a = await API.assignEnquiry(
                               enquireId: operationEnquiry.id,
                               user: userList[index].id,
-                              assigner: user!.id!);
-                          print(a);
-                          Navigator.pop(_);
+                              assigner: user?.id ?? '');
+                          Navigator.pop(ctx ?? context);
                         } catch (e) {
-                          Navigator.pop(_);
                           print('Something went wrong!');
+                          Navigator.pop(ctx ?? context);
                         }
                       },
                     ));
@@ -591,7 +598,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getUserDetails();
   }
@@ -601,10 +607,16 @@ class _HomePageState extends State<HomePage> {
   void getUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString(SharedPrefEnum.userData.name));
+    if (prefs.getString(SharedPrefEnum.userData.name) == null) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
     if (mounted) {
       setState(() {
         user = User.fromJson(
-            jsonDecode(prefs.getString(SharedPrefEnum.userData.name) ?? '{}'));
+            jsonDecode(prefs.getString(SharedPrefEnum.userData.name)!));
         isLoading = false;
         print('here ${user?.name}');
       });

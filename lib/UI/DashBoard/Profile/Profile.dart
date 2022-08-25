@@ -591,10 +591,15 @@ class _ProfileState extends State<Profile> {
   void getUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString(SharedPrefEnum.userData.name));
+    if (prefs.getString(SharedPrefEnum.userData.name) == null) {
+      return;
+    }
     if (mounted) {
       setState(() {
         user = User.fromJson(
-            jsonDecode(prefs.getString(SharedPrefEnum.userData.name) ?? '{}'));
+            jsonDecode(prefs.getString(SharedPrefEnum.userData.name)!));
+
+        print('here ${user?.name}');
       });
     }
   }

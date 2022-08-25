@@ -15,9 +15,16 @@ import '../../../models/user_model.dart';
 import '../../../shared_prefs_enum/shared_pref_enum.dart';
 
 class Inquiry extends StatefulWidget {
-  final Product product;
+  final List<Product> products;
+  final User? user;
+  final String? mobile;
 
-  const Inquiry({Key? key, required this.product}) : super(key: key);
+  const Inquiry(
+      {Key? key,
+      required this.products,
+      required this.user,
+      required this.mobile})
+      : super(key: key);
 
   @override
   _InquiryState createState() => _InquiryState();
@@ -41,17 +48,20 @@ class _InquiryState extends State<Inquiry> {
   @override
   void initState() {
     super.initState();
-    getSharedPrefs();
-  }
-
-  getSharedPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      String? userData = prefs.getString(SharedPrefEnum.userData.name);
-      if (userData != null) {
-        user = User.fromJson(jsonDecode(userData));
-      }
-    });
+    if (mounted && widget.user != null) {
+      setState(() {
+        user = widget.user;
+        nameController.text = user?.name ?? '';
+        emailController.text = user?.email ?? '';
+        mobileController.text = user?.mobile ?? '';
+        locationController.text = user?.location ?? '';
+      });
+    }
+    if (widget.mobile != null && mounted) {
+      setState(() {
+        mobileController.text = widget.mobile ?? '';
+      });
+    }
   }
 
   @override
@@ -116,142 +126,161 @@ class _InquiryState extends State<Inquiry> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(
-                              height: 150.h,
-                              width: MediaQuery.of(context).size.width.w,
-                              child: Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 10.w,
-                                      right: 10.w,
-                                      top: 5.h,
-                                      bottom: 5.h),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                          child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 8.w,
-                                              ),
-                                              Text(
-                                                widget.product.product,
-                                                style: TextStyle(
-                                                    color: ColorConstants
-                                                        .colorBlack87,
-                                                    fontFamily: 'RoMedium',
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 13.sp),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height: 5.h,
-                                          ),
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 5.w,
-                                              ),
-                                              RatingBar.builder(
-                                                initialRating: double.parse(
-                                                    widget.product.rating),
-                                                minRating: 1,
-                                                direction: Axis.horizontal,
-                                                allowHalfRating: true,
-                                                itemCount: 5,
-                                                itemSize: 13.sp,
-                                                itemPadding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 0.0),
-                                                itemBuilder: (context, _) =>
-                                                    Icon(
-                                                  Icons.star,
-                                                  color: Colors.amber,
-                                                  size: 5.sp,
-                                                ),
-                                                onRatingUpdate: (rating) {
-                                                  print(rating);
-                                                },
-                                              )
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height: 5.h,
-                                          ),
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 8.w,
-                                              ),
-                                              Text(
-                                                "Price:",
-                                                style: TextStyle(
-                                                    color: ColorConstants
-                                                        .colorBlack45,
-                                                    fontFamily: 'RoMedium',
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 12.sp),
-                                              ),
-                                              SizedBox(
-                                                width: 7.w,
-                                              ),
-                                              Image.asset(
-                                                "assets/images/rupee.png",
-                                                height: 12.h,
-                                                width: 12.w,
-                                              ),
-                                              Text(
-                                                widget.product.mainPrice,
-                                                style: TextStyle(
-                                                    color: ColorConstants
-                                                        .colorBlack45,
-                                                    fontFamily: 'RoMedium',
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 12.sp),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      )),
-                                      SizedBox(
-                                        width: 100.w,
-                                        child: Column(
+                          ListView.builder(
+                              itemCount: widget.products.length,
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                return SizedBox(
+                                    height: 150.h,
+                                    width: MediaQuery.of(context).size.width.w,
+                                    child: Padding(
+                                        padding: EdgeInsets.only(
+                                            left: 10.w,
+                                            right: 10.w,
+                                            top: 5.h,
+                                            bottom: 5.h),
+                                        child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Card(
-                                                elevation: 2,
-                                                color:
-                                                    ColorConstants.colorWhite,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(10),
-                                                  child: SizedBox(
-                                                    width: 70.w,
-                                                    height: 80.h,
-                                                    child: Column(
-                                                      children: [
-                                                        Image.asset(
-                                                          "assets/images/door.png",
-                                                          height: 70.h,
-                                                          width: 70.w,
-                                                        ),
-                                                      ],
+                                            Expanded(
+                                                child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 8.w,
                                                     ),
-                                                  ),
-                                                )),
+                                                    Text(
+                                                      widget.products[index]
+                                                          .product,
+                                                      style: TextStyle(
+                                                          color: ColorConstants
+                                                              .colorBlack87,
+                                                          fontFamily:
+                                                              'RoMedium',
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 13.sp),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 5.h,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 5.w,
+                                                    ),
+                                                    RatingBar.builder(
+                                                      initialRating:
+                                                          double.parse(widget
+                                                              .products[index]
+                                                              .rating),
+                                                      minRating: 1,
+                                                      direction:
+                                                          Axis.horizontal,
+                                                      allowHalfRating: true,
+                                                      itemCount: 5,
+                                                      itemSize: 13.sp,
+                                                      itemPadding:
+                                                          const EdgeInsets
+                                                                  .symmetric(
+                                                              horizontal: 0.0),
+                                                      itemBuilder:
+                                                          (context, _) => Icon(
+                                                        Icons.star,
+                                                        color: Colors.amber,
+                                                        size: 5.sp,
+                                                      ),
+                                                      onRatingUpdate: (rating) {
+                                                        print(rating);
+                                                      },
+                                                    )
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 5.h,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 8.w,
+                                                    ),
+                                                    Text(
+                                                      "Price:",
+                                                      style: TextStyle(
+                                                          color: ColorConstants
+                                                              .colorBlack45,
+                                                          fontFamily:
+                                                              'RoMedium',
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 12.sp),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 7.w,
+                                                    ),
+                                                    Image.asset(
+                                                      "assets/images/rupee.png",
+                                                      height: 12.h,
+                                                      width: 12.w,
+                                                    ),
+                                                    Text(
+                                                      widget.products[index]
+                                                          .mainPrice,
+                                                      style: TextStyle(
+                                                          color: ColorConstants
+                                                              .colorBlack45,
+                                                          fontFamily:
+                                                              'RoMedium',
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 12.sp),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            )),
+                                            SizedBox(
+                                              width: 100.w,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Card(
+                                                      elevation: 2,
+                                                      color: ColorConstants
+                                                          .colorWhite,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        child: SizedBox(
+                                                          width: 70.w,
+                                                          height: 80.h,
+                                                          child: Column(
+                                                            children: [
+                                                              Image.asset(
+                                                                "assets/images/door.png",
+                                                                height: 70.h,
+                                                                width: 70.w,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      )),
+                                                ],
+                                              ),
+                                            )
                                           ],
-                                        ),
-                                      )
-                                    ],
-                                  ))),
+                                        )));
+                              }),
                           Container(
                               width: 300.w,
                               padding: EdgeInsets.all(7.h),
@@ -262,6 +291,7 @@ class _InquiryState extends State<Inquiry> {
                                 ),
                                 child: TextField(
                                   autocorrect: true,
+                                  readOnly: user?.mobile != null ? true : false,
                                   controller: nameController,
                                   decoration: InputDecoration(
                                     hintText: 'Name',
@@ -297,6 +327,8 @@ class _InquiryState extends State<Inquiry> {
                                   ),
                                   child: TextField(
                                     autocorrect: true,
+                                    readOnly:
+                                        user?.email != null ? true : false,
                                     controller: emailController,
                                     decoration: InputDecoration(
                                       hintText: 'Email',
@@ -331,6 +363,11 @@ class _InquiryState extends State<Inquiry> {
                                   ),
                                   child: TextField(
                                     autocorrect: true,
+                                    readOnly: widget.mobile != null
+                                        ? true
+                                        : user?.mobile != null
+                                            ? true
+                                            : false,
                                     controller: mobileController,
                                     decoration: InputDecoration(
                                       hintText: 'Mobile No.',
@@ -503,6 +540,14 @@ class _InquiryState extends State<Inquiry> {
                                               });
                                               return;
                                             }
+                                            String productIds = ' ';
+                                            for (var product
+                                                in widget.products) {
+                                              productIds +=
+                                                  product.id.toString() + ',';
+                                            }
+                                            productIds = productIds.substring(
+                                                0, productIds.length - 1);
                                             InquiryModel inquiryModel =
                                                 InquiryModel(
                                                     name: nameController.text,
@@ -513,7 +558,7 @@ class _InquiryState extends State<Inquiry> {
                                                         locationController.text,
                                                     message:
                                                         messageController.text,
-                                                    pid: widget.product.id,
+                                                    pid: productIds,
                                                     createdAt: DateTime.now());
                                             setState(() {
                                               isLoading = true;
@@ -524,13 +569,28 @@ class _InquiryState extends State<Inquiry> {
                                               isLoading = false;
                                             });
                                             if (isSuccess) {
+                                              if (user == null) {
+                                                var prefs =
+                                                    await SharedPreferences
+                                                        .getInstance();
+                                                await prefs.clear();
+                                                await prefs.setString(
+                                                    SharedPrefEnum
+                                                        .guestMobile.name,
+                                                    mobileController.text);
+                                                print(
+                                                    'saved to shared prefs ${mobileController.text}');
+                                                print(prefs.getString(
+                                                    SharedPrefEnum
+                                                        .guestMobile.name));
+                                              }
                                               await ScaffoldMessenger.of(
                                                       context)
                                                   .showSnackBar(const SnackBar(
                                                     content: Text(
                                                         'Inquiry submitted successfully'),
-                                                    duration:
-                                                        Duration(seconds: 1),
+                                                    duration: Duration(
+                                                        milliseconds: 500),
                                                   ))
                                                   .closed
                                                   .then((reason) {

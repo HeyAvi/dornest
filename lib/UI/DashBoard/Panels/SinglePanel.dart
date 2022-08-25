@@ -9,6 +9,10 @@ import 'package:dornest/models/sub_category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../models/user_model.dart';
+import '../../../shared_prefs_enum/shared_pref_enum.dart';
 
 class SubCategoriesScreen extends StatelessWidget {
   final String categoryId;
@@ -78,6 +82,9 @@ class SinglePanel extends StatefulWidget {
 }
 
 class _SinglePanelState extends State<SinglePanel> {
+  List<Product> selectedProducts = [];
+  bool selectBox = false;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -117,424 +124,448 @@ class _SinglePanelState extends State<SinglePanel> {
             ),
           )),
       body: SafeArea(
-          child: Padding(
-        padding:
-            EdgeInsets.only(left: 20.w, top: 10.h, bottom: 10.h, right: 20.h),
-        child: ListView(
-          physics: const ClampingScrollPhysics(),
-          children: [
-            Padding(
-                padding: EdgeInsets.only(
-                    left: 0.w, top: 0.h, bottom: 10.h, right: 0.h),
-                child: Container(
-                  height: 115.h,
-                  width: MediaQuery.of(context).size.width.w,
-                  padding: EdgeInsets.all(0.h),
-                  decoration: BoxDecoration(
-                    color: ColorConstants.colorGrey,
-                    borderRadius: BorderRadius.circular(5.h),
-                    image: const DecorationImage(
-                      image: AssetImage("assets/images/banner.png"),
-                      fit: BoxFit.fill,
+        child: Padding(
+          padding:
+              EdgeInsets.only(left: 20.w, top: 10.h, bottom: 10.h, right: 20.h),
+          child: ListView(
+            physics: const ClampingScrollPhysics(),
+            children: [
+              Padding(
+                  padding: EdgeInsets.only(
+                      left: 0.w, top: 0.h, bottom: 10.h, right: 0.h),
+                  child: Container(
+                    height: 115.h,
+                    width: MediaQuery.of(context).size.width.w,
+                    padding: EdgeInsets.all(0.h),
+                    decoration: BoxDecoration(
+                      color: ColorConstants.colorGrey,
+                      borderRadius: BorderRadius.circular(5.h),
+                      image: const DecorationImage(
+                        image: AssetImage("assets/images/banner.png"),
+                        fit: BoxFit.fill,
+                      ),
                     ),
-                  ),
-                )),
-            SizedBox(
-              height: 40,
-              child: ListView.builder(
-                itemCount: widget.subCategories.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 4),
-                    child: InkWell(
-                      onTap: () {
-                        for (int i = 0; i < widget.subCategories.length; i++) {
-                          if (i != index) {
-                            widget.subCategories[i].isActive = false;
+                  )),
+              SizedBox(
+                height: 40,
+                child: ListView.builder(
+                  itemCount: widget.subCategories.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 4),
+                      child: InkWell(
+                        onTap: () {
+                          for (int i = 0;
+                              i < widget.subCategories.length;
+                              i++) {
+                            if (i != index) {
+                              widget.subCategories[i].isActive = false;
+                            }
                           }
-                        }
 
-                        setState(() {
-                          widget.subCategories[index].isActive = true;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                            color: widget.subCategories[index].isActive ?? false
-                                ? ColorConstants.colorPrimaryDark
-                                : ColorConstants.colorGrey,
-                            borderRadius: BorderRadius.circular(5.h)),
-                        child: Center(
-                          child: Text(
-                            widget.subCategories[index].subcategory
-                                .toUpperCase(),
-                            style: TextStyle(
-                                fontFamily: 'RoMedium',
-                                color: Colors.white,
-                                fontSize: 12.sp),
+                          setState(() {
+                            widget.subCategories[index].isActive = true;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          decoration: BoxDecoration(
+                              color:
+                                  widget.subCategories[index].isActive ?? false
+                                      ? ColorConstants.colorPrimaryDark
+                                      : ColorConstants.colorGrey,
+                              borderRadius: BorderRadius.circular(5.h)),
+                          child: Center(
+                            child: Text(
+                              widget.subCategories[index].subcategory
+                                  .toUpperCase(),
+                              style: TextStyle(
+                                  fontFamily: 'RoMedium',
+                                  color: Colors.white,
+                                  fontSize: 12.sp),
+                            ),
                           ),
                         ),
+                      ),
+                    );
+                  },
+                  scrollDirection: Axis.horizontal,
+                ),
+              ),
+              SizedBox(
+                height: 5.h,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'The lorem ipsum gets its name from the Latin phrase Neque porro quisquam est qui dolorem ipsum quia dolor sit amet. which translates to “Nor is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain.”',
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                          color: ColorConstants.colorBlack87, fontSize: 12.sp),
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 5.h,
+              ),
+              FutureBuilder(
+                  future: API.getProducts(),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (snapshot.data == null) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    Map mapData = jsonDecode(snapshot.data);
+                    List dataList = mapData['0'];
+                    List<Product> products = [];
+                    String categoryId = getCategoryId();
+                    String subCatId = getSubCategoryId();
+                    print(categoryId);
+                    print(subCatId);
+                    for (var data in dataList) {
+                      if (data['category'] == categoryId &&
+                          data['subcategory'] == subCatId) {
+                        products.add(Product.fromJson(data));
+                      }
+                    }
+                    if (products.isEmpty) {
+                      return const Center(
+                        child: Text('No Products Found'),
+                      );
+                    }
+                    return ListView.builder(
+                        itemCount: products.length,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          bool isSelected = false;
+                          for (var product in selectedProducts) {
+                            if (product.id == products[index].id) {
+                              isSelected = true;
+                              break;
+                            }
+                          }
+                          // todo separate it
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                left: 0.w, right: 0.w, top: 10.w),
+                            child: GestureDetector(
+                              onLongPress: () {
+                                setState(() {
+                                  if (selectBox) {
+                                    selectedProducts.clear();
+                                  }
+                                  selectBox = !selectBox;
+                                });
+                              },
+                              child: Flex(
+                                direction: Axis.horizontal,
+                                children: [
+                                  Visibility(
+                                    visible: selectBox,
+                                    child: Flexible(
+                                        flex: 0,
+                                        child: Checkbox(
+                                          activeColor: ColorConstants
+                                              .colorPrimary,
+                                            value: isSelected,
+                                            onChanged: (val) {
+                                              isSelected = val ?? false;
+                                              setState(() {
+                                                if (isSelected) {
+                                                  selectedProducts
+                                                      .add(products[index]);
+                                                } else {
+                                                  for (int i = 0;
+                                                      i <
+                                                          selectedProducts
+                                                              .length;
+                                                      i++) {
+                                                    if (selectedProducts[i]
+                                                            .id ==
+                                                        products[index].id) {
+                                                      selectedProducts
+                                                          .removeAt(i);
+                                                      break;
+                                                    }
+                                                  }
+                                                }
+                                              });
+                                            })),
+                                  ),
+                                  Flexible(
+                                    flex: 4,
+                                    child: Container(
+                                        height: 150.h,
+                                        width:
+                                            MediaQuery.of(context).size.width.w,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: ColorConstants.colorGrey,
+                                            width: 0.3.w,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(10.h),
+                                        ),
+                                        child: Padding(
+                                            padding: EdgeInsets.only(
+                                                left: 10.w,
+                                                right: 10.w,
+                                                top: 5.h,
+                                                bottom: 5.h),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Expanded(
+                                                    child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width: 8.w,
+                                                        ),
+                                                        Text(
+                                                          products[index]
+                                                              .product,
+                                                          style: TextStyle(
+                                                              color: ColorConstants
+                                                                  .colorBlack87,
+                                                              fontFamily:
+                                                                  'RoMedium',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 13.sp),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      height: 5.h,
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width: 5.w,
+                                                        ),
+                                                        RatingBar.builder(
+                                                          initialRating:
+                                                              double.parse(
+                                                                  products[
+                                                                          index]
+                                                                      .rating),
+                                                          minRating: 1,
+                                                          direction:
+                                                              Axis.horizontal,
+                                                          allowHalfRating: true,
+                                                          itemCount: 5,
+                                                          itemSize: 13.sp,
+                                                          itemPadding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  horizontal:
+                                                                      0.0),
+                                                          itemBuilder:
+                                                              (context, _) =>
+                                                                  Icon(
+                                                            Icons.star,
+                                                            color: Colors.amber,
+                                                            size: 5.sp,
+                                                          ),
+                                                          onRatingUpdate:
+                                                              (rating) {
+                                                            print(rating);
+                                                          },
+                                                        )
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      height: 5.h,
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width: 8.w,
+                                                        ),
+                                                        Text(
+                                                          "Price:",
+                                                          style: TextStyle(
+                                                              color: ColorConstants
+                                                                  .colorBlack45,
+                                                              fontFamily:
+                                                                  'RoMedium',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 12.sp),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 7.w,
+                                                        ),
+                                                        Image.asset(
+                                                          "assets/images/rupee.png",
+                                                          height: 12.h,
+                                                          width: 12.w,
+                                                        ),
+                                                        Text(
+                                                          products[index]
+                                                              .mainPrice,
+                                                          style: TextStyle(
+                                                              color: ColorConstants
+                                                                  .colorBlack45,
+                                                              fontFamily:
+                                                                  'RoMedium',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 12.sp),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      height: 5.h,
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width: 8.w,
+                                                        ),
+                                                        Text(
+                                                          "BUY NOW",
+                                                          style: TextStyle(
+                                                              color: ColorConstants
+                                                                  .colorPrimary,
+                                                              fontFamily:
+                                                                  'RoMedium',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 12.sp),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                )),
+                                                SizedBox(
+                                                  width: 100.w,
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Card(
+                                                          elevation: 2,
+                                                          color: ColorConstants
+                                                              .colorWhite,
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 10.h,
+                                                                    bottom:
+                                                                        10.h,
+                                                                    left: 5.h,
+                                                                    right: 5.h),
+                                                            child: SizedBox(
+                                                              width: 70.w,
+                                                              height: 80.h,
+                                                              child: Column(
+                                                                children: [
+                                                                  Image.asset(
+                                                                    "assets/images/door.png",
+                                                                    height:
+                                                                        70.h,
+                                                                    width: 70.w,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          )),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          Inquiry(
+                                                                    products: [
+                                                                      products[
+                                                                          index]
+                                                                    ],
+                                                                    user: user,
+                                                                    mobile:
+                                                                        mobile,
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                            child: Image.asset(
+                                                              "assets/images/customer_service.png",
+                                                              height: 30.h,
+                                                              width: 30.w,
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 12.w,
+                                                          )
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            ))),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                  })
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: selectedProducts.isNotEmpty
+          ? Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: ColorConstants.colorPrimary,
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
+                  elevation: 0.0,
+                ),
+                onPressed: () async {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Inquiry(
+                        products: selectedProducts,
+                        user: user,
+                        mobile: mobile,
                       ),
                     ),
                   );
                 },
-                scrollDirection: Axis.horizontal,
+                child: const Text('Next'),
               ),
-            ),
-            // Row(
-            //   children: [
-            //     Expanded(
-            //         flex: 1,
-            //         child: InkWell(
-            //           onTap: () {
-            //             setState(() {
-            //               widget.subCategories[0].isActive = true;
-            //               widget.subCategories[1].isActive = false;
-            //               widget.subCategories[2].isActive = false;
-            //             });
-            //           },
-            //           child: Container(
-            //             padding: EdgeInsets.all(3.h),
-            //             decoration: BoxDecoration(
-            //                 color: widget.subCategories[0].isActive ?? false
-            //                     ? ColorConstants.colorPrimaryDark
-            //                     : ColorConstants.colorGrey,
-            //                 borderRadius: BorderRadius.circular(5.h)),
-            //             child: Center(
-            //               child: Text(
-            //                 widget.subCategories[0].subcategory.toUpperCase(),
-            //                 style: TextStyle(
-            //                     fontFamily: 'RoMedium',
-            //                     color: Colors.white,
-            //                     fontSize: 12.sp),
-            //               ),
-            //             ),
-            //           ),
-            //         )),
-            //     SizedBox(
-            //       width: 5.w,
-            //     ),
-            //     Expanded(
-            //         flex: 1,
-            //         child: InkWell(
-            //           onTap: () {
-            //             setState(() {
-            //               widget.subCategories[0].isActive = false;
-            //               widget.subCategories[1].isActive = true;
-            //               widget.subCategories[2].isActive = false;
-            //             });
-            //           },
-            //           child: Container(
-            //             padding: EdgeInsets.all(3.h),
-            //             decoration: BoxDecoration(
-            //                 color: widget.subCategories[1].isActive ?? false
-            //                     ? ColorConstants.colorPrimaryDark
-            //                     : ColorConstants.colorGrey,
-            //                 borderRadius: BorderRadius.circular(5.h)),
-            //             child: Center(
-            //               child: Text(
-            //                 widget.subCategories[1].subcategory.toUpperCase(),
-            //                 style: TextStyle(
-            //                     fontFamily: 'RoMedium',
-            //                     color: Colors.white,
-            //                     fontSize: 12.sp),
-            //               ),
-            //             ),
-            //           ),
-            //         )),
-            //     SizedBox(
-            //       width: 5.w,
-            //     ),
-            //     Expanded(
-            //         flex: 1,
-            //         child: InkWell(
-            //           onTap: () {
-            //             setState(() {
-            //               widget.subCategories[0].isActive = false;
-            //               widget.subCategories[1].isActive = false;
-            //               widget.subCategories[2].isActive = true;
-            //             });
-            //           },
-            //           child: Container(
-            //             padding: EdgeInsets.all(3.h),
-            //             decoration: BoxDecoration(
-            //                 color: widget.subCategories[2].isActive ?? false
-            //                     ? ColorConstants.colorPrimaryDark
-            //                     : ColorConstants.colorGrey,
-            //                 borderRadius: BorderRadius.circular(5.h)),
-            //             child: Center(
-            //               child: Text(
-            //                 widget.subCategories[2].subcategory.toUpperCase(),
-            //                 style: TextStyle(
-            //                     fontFamily: 'RoMedium',
-            //                     color: Colors.white,
-            //                     fontSize: 12.sp),
-            //               ),
-            //             ),
-            //           ),
-            //         )),
-            //     SizedBox(
-            //       width: 5.w,
-            //     ),
-            //     const Expanded(flex: 1, child: Text("")),
-            //   ],
-            // ),
-            SizedBox(
-              height: 5.h,
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'The lorem ipsum gets its name from the Latin phrase Neque porro quisquam est qui dolorem ipsum quia dolor sit amet. which translates to “Nor is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain.”',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: ColorConstants.colorBlack87, fontSize: 12.sp),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 5.h,
-            ),
-            FutureBuilder(
-                future: API.getProducts(),
-                builder: (context, AsyncSnapshot snapshot) {
-                  if (snapshot.data == null) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-
-                  Map mapData = jsonDecode(snapshot.data);
-                  List dataList = mapData['0'];
-                  List<Product> products = [];
-                  String categoryId = getCategoryId();
-                  String subCatId = getSubCategoryId();
-                  print(categoryId);
-                  print(subCatId);
-                  for (var data in dataList) {
-                    if (data['category'] == categoryId &&
-                        data['subcategory'] == subCatId) {
-                      products.add(Product.fromJson(data));
-                    }
-                  }
-                  if (products.isEmpty) {
-                    return const Center(
-                      child: Text('No Products Found'),
-                    );
-                  }
-                  return ListView.builder(
-                      itemCount: products.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        // todo separate it
-                        return Padding(
-                          padding:
-                              EdgeInsets.only(left: 0.w, right: 0.w, top: 10.w),
-                          child: Container(
-                              height: 150.h,
-                              width: MediaQuery.of(context).size.width.w,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: ColorConstants.colorGrey,
-                                  width: 0.3.w,
-                                ),
-                                borderRadius: BorderRadius.circular(10.h),
-                              ),
-                              child: Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 10.w,
-                                      right: 10.w,
-                                      top: 5.h,
-                                      bottom: 5.h),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                          child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 8.w,
-                                              ),
-                                              Text(
-                                                products[index].product,
-                                                style: TextStyle(
-                                                    color: ColorConstants
-                                                        .colorBlack87,
-                                                    fontFamily: 'RoMedium',
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 13.sp),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height: 5.h,
-                                          ),
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 5.w,
-                                              ),
-                                              RatingBar.builder(
-                                                initialRating: double.parse(
-                                                    products[index].rating),
-                                                minRating: 1,
-                                                direction: Axis.horizontal,
-                                                allowHalfRating: true,
-                                                itemCount: 5,
-                                                itemSize: 13.sp,
-                                                itemPadding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 0.0),
-                                                itemBuilder: (context, _) =>
-                                                    Icon(
-                                                  Icons.star,
-                                                  color: Colors.amber,
-                                                  size: 5.sp,
-                                                ),
-                                                onRatingUpdate: (rating) {
-                                                  print(rating);
-                                                },
-                                              )
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height: 5.h,
-                                          ),
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 8.w,
-                                              ),
-                                              Text(
-                                                "Price:",
-                                                style: TextStyle(
-                                                    color: ColorConstants
-                                                        .colorBlack45,
-                                                    fontFamily: 'RoMedium',
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 12.sp),
-                                              ),
-                                              SizedBox(
-                                                width: 7.w,
-                                              ),
-                                              Image.asset(
-                                                "assets/images/rupee.png",
-                                                height: 12.h,
-                                                width: 12.w,
-                                              ),
-                                              Text(
-                                                products[index].mainPrice,
-                                                style: TextStyle(
-                                                    color: ColorConstants
-                                                        .colorBlack45,
-                                                    fontFamily: 'RoMedium',
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 12.sp),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height: 5.h,
-                                          ),
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 8.w,
-                                              ),
-                                              Text(
-                                                "BUY NOW",
-                                                style: TextStyle(
-                                                    color: ColorConstants
-                                                        .colorPrimary,
-                                                    fontFamily: 'RoMedium',
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 12.sp),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      )),
-                                      SizedBox(
-                                        width: 100.w,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Card(
-                                                elevation: 2,
-                                                color:
-                                                    ColorConstants.colorWhite,
-                                                child: Padding(
-                                                  padding: EdgeInsets.only(
-                                                      top: 10.h,
-                                                      bottom: 10.h,
-                                                      left: 5.h,
-                                                      right: 5.h),
-                                                  child: SizedBox(
-                                                    width: 70.w,
-                                                    height: 80.h,
-                                                    child: Column(
-                                                      children: [
-                                                        Image.asset(
-                                                          "assets/images/door.png",
-                                                          height: 70.h,
-                                                          width: 70.w,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                )),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder:
-                                                                (context) =>
-                                                                    Inquiry(
-                                                                      product:
-                                                                          products[
-                                                                              index],
-                                                                    )));
-                                                  },
-                                                  child: Image.asset(
-                                                    "assets/images/customer_service.png",
-                                                    height: 30.h,
-                                                    width: 30.w,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: 12.w,
-                                                )
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ))),
-                        );
-                      });
-                })
-          ],
-        ),
-      )),
-      bottomNavigationBar: BottomNavigationBarWidget(),
+            )
+          : BottomNavigationBarWidget(),
     ));
   }
 
@@ -556,9 +587,29 @@ class _SinglePanelState extends State<SinglePanel> {
     return '';
   }
 
+  User? user;
+
+  void getUserDetails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        mobile = prefs.getString(SharedPrefEnum.guestMobile.name);
+        print('here ${mobile}');
+        if (prefs.getString(SharedPrefEnum.userData.name) == null) {
+          return;
+        }
+        user = User.fromJson(
+            jsonDecode(prefs.getString(SharedPrefEnum.userData.name)!));
+        print('here ${user?.name}');
+      });
+    }
+  }
+
+  String? mobile;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    getUserDetails();
   }
 }
