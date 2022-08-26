@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dornest/UI/DashBoard/Support/view_quotation/view_quotation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -144,15 +145,15 @@ class _GeneratesQuotesState extends State<AllEnquiries> {
                                     )
                                   : ElevatedButton(
                                       onPressed: () {
-                                        // Navigator.push(
-                                        //   context,
-                                        //   MaterialPageRoute(
-                                        //     builder: (context) => GeneratesQuotes(
-                                        //       enquiryUser: enquiryUser,
-                                        //       productIds: productIds,
-                                        //     ),
-                                        //   ),
-                                        // );
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ViewQuotation(
+                                              userId: widget.user.id,
+                                              enquireId: enquiryUser.id,
+                                            ),
+                                          ),
+                                        );
                                       },
                                       child: const Text(
                                         'View\nQuotation',
@@ -181,6 +182,7 @@ class _GeneratesQuotesState extends State<AllEnquiries> {
                                 Map mapData = jsonDecode(snapshot.data);
                                 List dataList = mapData['0'];
                                 List<Product> products = [];
+
                                 for (var data in dataList) {
                                   if (data['product_id'] == productIds[index]) {
                                     products.add(Product.fromJson(data));

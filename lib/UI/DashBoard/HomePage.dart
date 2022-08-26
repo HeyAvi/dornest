@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dornest/UI/Authentication/LoginPage.dart';
 import 'package:dornest/UI/DashBoard/Notification/Notification.dart';
+import 'package:dornest/UI/DashBoard/show_assigned_enquiries.dart';
 import 'package:dornest/UI/DashBoard/widgets/home_category_card.dart';
 import 'package:dornest/UI/SupportingWidgets/AppDrawer.dart';
 import 'package:dornest/UI/SupportingWidgets/BottomNavigationBar.dart';
@@ -18,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/user_model.dart';
 import '../../shared_prefs_enum/shared_pref_enum.dart';
+import 'Support/customer_support_tab/assigned_enquiries.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -147,6 +149,18 @@ class _HomePageState extends State<HomePage> {
                               return Card(
                                   elevation: 3,
                                   child: ListTile(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ShowAssignedEnquiries(
+                                                    enquiryUserId:
+                                                        operationEnquiries[
+                                                                index]
+                                                            .id,
+                                                  )));
+                                    },
                                     title: Text(operationEnquiries[index].name),
                                     subtitle: Column(
                                       crossAxisAlignment:
@@ -219,144 +233,161 @@ class _HomePageState extends State<HomePage> {
                             },
                           );
                         })
-                    : Column(
-                        children: [
-                          CarouselSlider.builder(
-                              itemCount: 4,
-                              options: CarouselOptions(
-                                  height: 120.h,
-                                  aspectRatio: 16 / 9,
-                                  viewportFraction: 1.0,
-                                  onPageChanged: (index, reason) {
-                                    setState(() {
-                                      _current = index + 1;
-                                    });
-                                  }),
-                              itemBuilder: (BuildContext context, int itemIndex,
-                                  int pageViewIndex) {
-                                return Container(
-                                    width: MediaQuery.of(context).size.width.w,
-                                    padding: EdgeInsets.all(10.h),
-                                    margin:
-                                        EdgeInsets.only(left: 2.w, right: 2.w),
-                                    decoration: BoxDecoration(
-                                      //color: ColorConstants.colorPrimary,
-                                      borderRadius: BorderRadius.circular(5.h),
-                                      image: const DecorationImage(
-                                        image: AssetImage(
-                                            "assets/images/banner.png"),
-                                        fit: BoxFit.fill,
-                                      ),
-                                    ),
-                                    child: user == null
-                                        ? Row(
-                                            children: [
-                                              const Expanded(child: Text("")),
-                                              Column(
-                                                children: [
-                                                  SizedBox(
-                                                    height: 20.h,
-                                                  ),
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      Navigator.pushReplacement(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  const LoginPage()));
-                                                    },
-                                                    child: Container(
-                                                      height: 24.h,
-                                                      width: 90.w,
-                                                      padding: EdgeInsets.only(
-                                                          left: 7.w,
-                                                          right: 7.w,
-                                                          top: 0.h,
-                                                          bottom: 0.h),
-                                                      decoration: BoxDecoration(
-                                                          color: ColorConstants
-                                                              .colorPrimary,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      30.h)),
-                                                      child: Center(
-                                                        child: Text(
-                                                          "Login",
-                                                          style: TextStyle(
-                                                              fontFamily:
-                                                                  'PoppinsMedium',
-                                                              color:
-                                                                  ColorConstants
-                                                                      .colorWhite,
-                                                              fontSize: 15.sp),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                ],
-                                              )
-                                            ],
-                                          )
-                                        : null);
-                              }),
-                          SizedBox(
-                            height: 8.h,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [1, 2, 3, 4].map((i) {
-                              int index = i; //are changed
-                              return Container(
-                                width: 6.h,
-                                height: 6.h,
-                                margin: EdgeInsets.symmetric(
-                                    vertical: 0.0, horizontal: 2.h),
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: _current == index
-                                        ? ColorConstants.colorPrimary
-                                        : const Color.fromRGBO(0, 0, 0, 0.4)),
-                              );
-                            }).toList(),
-                          ),
-                          Expanded(
-                              flex: 1,
-                              child: FutureBuilder(
-                                  future: API.getCategories(),
-                                  builder: (context, AsyncSnapshot snapshot) {
-                                    if (snapshot.data == null) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    } else if (!snapshot.hasData) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    }
-                                    Map data = jsonDecode(snapshot.data);
-                                    List dataList = data['0'];
-                                    if (dataList.isEmpty) {
-                                      return const Center(
-                                        child: Text('No Categories'),
-                                      );
-                                    }
-                                    List<CategoryModel> categoryList = [];
-                                    for (var data in dataList) {
-                                      categoryList
-                                          .add(CategoryModel.fromJson(data));
-                                    }
-                                    return ListView.builder(
-                                        physics: const BouncingScrollPhysics(),
-                                        itemCount: categoryList.length,
-                                        itemBuilder: (context, index) {
-                                          return CategoryCard(
-                                            categoryModel: categoryList[index],
-                                          );
+                    : user!.role == '6'
+                        ? AllEnquiries(
+                            user: user!,
+                          )
+                        : Column(
+                            children: [
+                              CarouselSlider.builder(
+                                  itemCount: 4,
+                                  options: CarouselOptions(
+                                      height: 120.h,
+                                      aspectRatio: 16 / 9,
+                                      viewportFraction: 1.0,
+                                      onPageChanged: (index, reason) {
+                                        setState(() {
+                                          _current = index + 1;
                                         });
-                                  })),
-                        ],
-                      )
+                                      }),
+                                  itemBuilder: (BuildContext context,
+                                      int itemIndex, int pageViewIndex) {
+                                    return Container(
+                                        width:
+                                            MediaQuery.of(context).size.width.w,
+                                        padding: EdgeInsets.all(10.h),
+                                        margin: EdgeInsets.only(
+                                            left: 2.w, right: 2.w),
+                                        decoration: BoxDecoration(
+                                          //color: ColorConstants.colorPrimary,
+                                          borderRadius:
+                                              BorderRadius.circular(5.h),
+                                          image: const DecorationImage(
+                                            image: AssetImage(
+                                                "assets/images/banner.png"),
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                        child: user == null
+                                            ? mobile == null
+                                                ? Row(
+                                                    children: [
+                                                      const Expanded(
+                                                          child: Text("")),
+                                                      Column(
+                                                        children: [
+                                                          SizedBox(
+                                                            height: 20.h,
+                                                          ),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              Navigator.pushReplacement(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                              const LoginPage()));
+                                                            },
+                                                            child: Container(
+                                                              height: 24.h,
+                                                              width: 90.w,
+                                                              padding: EdgeInsets
+                                                                  .only(
+                                                                      left: 7.w,
+                                                                      right:
+                                                                          7.w,
+                                                                      top: 0.h,
+                                                                      bottom:
+                                                                          0.h),
+                                                              decoration: BoxDecoration(
+                                                                  color: ColorConstants
+                                                                      .colorPrimary,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              30.h)),
+                                                              child: Center(
+                                                                child: Text(
+                                                                  "Login",
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'PoppinsMedium',
+                                                                      color: ColorConstants
+                                                                          .colorWhite,
+                                                                      fontSize:
+                                                                          15.sp),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          )
+                                                        ],
+                                                      )
+                                                    ],
+                                                  )
+                                                : null
+                                            : null);
+                                  }),
+                              SizedBox(
+                                height: 8.h,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [1, 2, 3, 4].map((i) {
+                                  int index = i; //are changed
+                                  return Container(
+                                    width: 6.h,
+                                    height: 6.h,
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: 0.0, horizontal: 2.h),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: _current == index
+                                            ? ColorConstants.colorPrimary
+                                            : const Color.fromRGBO(
+                                                0, 0, 0, 0.4)),
+                                  );
+                                }).toList(),
+                              ),
+                              Expanded(
+                                  flex: 1,
+                                  child: FutureBuilder(
+                                      future: API.getCategories(),
+                                      builder:
+                                          (context, AsyncSnapshot snapshot) {
+                                        if (snapshot.data == null) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        } else if (!snapshot.hasData) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        }
+                                        Map data = jsonDecode(snapshot.data);
+                                        List dataList = data['0'];
+                                        if (dataList.isEmpty) {
+                                          return const Center(
+                                            child: Text('No Categories'),
+                                          );
+                                        }
+                                        List<CategoryModel> categoryList = [];
+                                        for (var data in dataList) {
+                                          categoryList.add(
+                                              CategoryModel.fromJson(data));
+                                        }
+                                        return ListView.builder(
+                                            physics:
+                                                const BouncingScrollPhysics(),
+                                            itemCount: categoryList.length,
+                                            itemBuilder: (context, index) {
+                                              return CategoryCard(
+                                                categoryModel:
+                                                    categoryList[index],
+                                              );
+                                            });
+                                      })),
+                            ],
+                          )
                 : Column(
                     children: [
                       CarouselSlider.builder(
@@ -493,7 +524,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
       )),
-      bottomNavigationBar: BottomNavigationBarWidget(),
+      bottomNavigationBar: const BottomNavigationBarWidget(),
     ));
   }
 
@@ -577,9 +608,7 @@ class _HomePageState extends State<HomePage> {
                               );
                             });
                         try {
-                          print(
-                              '${userList[index].id} ${operationEnquiry.id} ${user?.id}');
-                          var a = await API.assignEnquiry(
+                          await API.assignEnquiry(
                               enquireId: operationEnquiry.id,
                               user: userList[index].id,
                               assigner: user?.id ?? '');
@@ -603,10 +632,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   User? user;
+  String? mobile;
 
   void getUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString(SharedPrefEnum.userData.name));
+    mobile = prefs.getString(SharedPrefEnum.guestMobile.name);
     if (prefs.getString(SharedPrefEnum.userData.name) == null) {
       setState(() {
         isLoading = false;

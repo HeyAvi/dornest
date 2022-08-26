@@ -17,6 +17,10 @@ class API {
   static const String operatorEnquiries = '/api/enquires';
   static const String getUserByRoleIdPath = '/api/get_users_by_role_id/';
   static const String assignEnqUrl = '/api/assign_enquire';
+  static const String ownEnquiries = '/api/sent_enquires/';
+  static const String quotationUrl =
+      '/api/sent_quotation_by_enquire_id_and_user_id/';
+  static const String assignersUrl = '/api/get_assigns_by_eid/';
 
   static Future<String?> getProducts() async {
     var request = http.Request('GET', Uri.parse(baseUrl + products));
@@ -29,6 +33,46 @@ class API {
 
   static Future<String?> getCategories() async {
     var request = http.Request('GET', Uri.parse(baseUrl + categories));
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      return await response.stream.bytesToString();
+    }
+    return null;
+  }
+
+  static Future<String?> myEnquiries({required String? mobile}) async {
+    if (mobile == null) {
+      return null;
+    }
+    var request =
+        http.Request('GET', Uri.parse(baseUrl + ownEnquiries + mobile));
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      return await response.stream.bytesToString();
+    }
+    return null;
+  }
+
+  static Future<String?> viewQuotation(
+      {required String? userId, required String? enquiryId}) async {
+    if (userId == null || enquiryId == null) {
+      return null;
+    }
+    var request = http.Request(
+        'GET', Uri.parse(baseUrl + quotationUrl + userId + '/' + enquiryId));
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      return await response.stream.bytesToString();
+    }
+    return null;
+  }
+
+  static Future<String?> getAssigners({required String? enquiryId}) async {
+    if (enquiryId == null) {
+      return null;
+    }
+    var request =
+        http.Request('GET', Uri.parse(baseUrl + assignersUrl + enquiryId));
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
       return await response.stream.bytesToString();
@@ -50,7 +94,8 @@ class API {
       {required String enquireId,
       required String user,
       required String assigner}) async {
-    var request = http.MultipartRequest('POST', Uri.parse(baseUrl + assignEnqUrl));
+    var request =
+        http.MultipartRequest('POST', Uri.parse(baseUrl + assignEnqUrl));
     request.fields.addAll({
       'enquire_id': enquireId,
       'user': user,
@@ -112,7 +157,7 @@ class API {
       if (response.statusCode == 200) {
         return true;
       }
-    } on Exception catch (e) {
+    }catch (e) {
       return false;
     }
     return false;
@@ -125,8 +170,6 @@ class API {
     var request =
         http.MultipartRequest('POST', Uri.parse(baseUrl + selectProduct));
     try {
-      print('$eid $userId $allProducts');
-
       request.fields.addAll({
         'allProducts': allProducts,
         'eid': eid,
@@ -136,7 +179,7 @@ class API {
       if (response.statusCode == 200) {
         return await response.stream.bytesToString();
       }
-    } on Exception catch (e) {
+    }catch (e) {
       return null;
     }
     return null;
@@ -152,7 +195,7 @@ class API {
       if (response.statusCode == 200) {
         return await response.stream.bytesToString();
       }
-    } on Exception catch (e) {
+    }catch (e) {
       return null;
     }
     return null;
@@ -167,7 +210,7 @@ class API {
       if (response.statusCode == 200) {
         return response.stream.bytesToString();
       }
-    } on Exception catch (e) {
+    }catch (e) {
       return null;
     }
     return null;
@@ -181,7 +224,7 @@ class API {
       if (response.statusCode == 200) {
         return response.stream.bytesToString();
       }
-    } on Exception catch (e) {
+    }catch (e) {
       return null;
     }
     return null;
@@ -204,8 +247,6 @@ class API {
       'created_at': createdAt
     });
     request.headers.addAll(headers);
-    print(request.fields);
-
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
       return await response.stream.bytesToString();

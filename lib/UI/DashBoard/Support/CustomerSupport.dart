@@ -41,10 +41,12 @@ class _CustomerSupportState extends State<CustomerSupport> {
         User userA = User.fromJson(jsonDecode(userData));
         user = userA;
       }
+      mobile = prefs.getString(SharedPrefEnum.guestMobile.name);
     });
   }
 
   User? user;
+  String? mobile;
 
   @override
   Widget build(BuildContext context) {
@@ -71,14 +73,16 @@ class _CustomerSupportState extends State<CustomerSupport> {
                 : AllEnquiries(
                     user: user!,
                   ),
-            MyEnquiriesTab(user: user)
+            MyEnquiriesTab(
+              user: user,
+              mobile: mobile,
+            )
           ],
         ),
       ),
     );
   }
 }
-
 
 class GuestUsers extends StatefulWidget {
   const GuestUsers({Key? key}) : super(key: key);
