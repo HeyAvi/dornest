@@ -6,6 +6,7 @@ import 'package:dornest/models/product_user_enq.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../Utils/ColorConstants.dart';
 import 'calculate_general_quote.dart';
@@ -988,6 +989,7 @@ class _MeasurementAndCalculationsState
                 Map responseMap = jsonDecode(response);
                 if (responseMap['response'] == '200') {
                   setState(() {
+                    Fluttertoast.showToast(msg: 'Quote submitted');
                     isSubmitted = true;
                     Future.delayed(const Duration(seconds: 2), () {
                       Navigator.pushAndRemoveUntil(

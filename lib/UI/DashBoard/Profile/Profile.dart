@@ -94,7 +94,7 @@ class _ProfileState extends State<Profile> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Text(
-                                        " ${user?.mobile ?? "Guest"}",
+                                        " ${user?.mobile ?? mobile ?? "Guest"}",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                             fontFamily: 'RoMedium',
@@ -587,11 +587,13 @@ class _ProfileState extends State<Profile> {
   }
 
   User? user;
+  String? mobile;
 
   void getUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(prefs.getString(SharedPrefEnum.userData.name));
+    mobile = prefs.getString(SharedPrefEnum.guestMobile.name);
     if (prefs.getString(SharedPrefEnum.userData.name) == null) {
+      setState(() {});
       return;
     }
     if (mounted) {

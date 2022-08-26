@@ -544,7 +544,7 @@ class _InquiryState extends State<Inquiry> {
                                             for (var product
                                                 in widget.products) {
                                               productIds +=
-                                                  product.id.toString() + ',';
+                                                  product.productId.toString() + ',';
                                             }
                                             productIds = productIds.substring(
                                                 0, productIds.length - 1);

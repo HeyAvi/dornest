@@ -44,6 +44,7 @@ dependencies:
   flutter_file_dialog: ^2.3.0
   http: ^0.13.5
   shared_preferences: any
+  fluttertoast: ^8.0.9
 
 
 

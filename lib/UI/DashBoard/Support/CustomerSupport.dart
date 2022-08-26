@@ -2,21 +2,14 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:dornest/UI/DashBoard/Support/customer_support_tab/my_enquiries_tab.dart';
-import 'package:dornest/UI/GenerateQuotes/generate_quotes.dart';
-import 'package:dornest/UI/GenerateQuotes/measurement_and_calculations.dart';
 import 'package:dornest/UI/SupportingWidgets/ButtonStyleOne.dart';
 import 'package:dornest/Utils/ColorConstants.dart';
-import 'package:dornest/apis/api.dart';
-import 'package:dornest/models/assigned_enq.dart';
-import 'package:dornest/models/enq_user.dart';
-import 'package:dornest/models/product_user_enq.dart';
 import 'package:dornest/models/user_model.dart';
 import 'package:dornest/shared_prefs_enum/shared_pref_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../models/product_model.dart';
 import 'customer_support_tab/assigned_enquiries.dart';
 
 class CustomerSupport extends StatefulWidget {
@@ -56,7 +49,7 @@ class _CustomerSupportState extends State<CustomerSupport> {
         appBar: AppBar(
           backgroundColor: ColorConstants.colorPrimary,
           elevation: 0,
-          title: const Text('Customer Support'),
+          title: const Text('Enquiries'),
           bottom: TabBar(indicatorColor: ColorConstants.colorBackground, tabs: [
             Tab(
               text: user == null ? 'Customer Support' : 'Assigned Enquiries',

@@ -15,6 +15,7 @@ import 'package:dornest/models/operation_enquiry_model.dart';
 import 'package:dornest/models/user_role_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/user_model.dart';
@@ -268,63 +269,59 @@ class _HomePageState extends State<HomePage> {
                                             fit: BoxFit.fill,
                                           ),
                                         ),
-                                        child: user == null
-                                            ? mobile == null
-                                                ? Row(
+                                        child: (user == null && mobile == null)
+                                            ? Row(
+                                                children: [
+                                                  const Expanded(
+                                                      child: Text("")),
+                                                  Column(
                                                     children: [
-                                                      const Expanded(
-                                                          child: Text("")),
-                                                      Column(
-                                                        children: [
-                                                          SizedBox(
-                                                            height: 20.h,
-                                                          ),
-                                                          GestureDetector(
-                                                            onTap: () {
-                                                              Navigator.pushReplacement(
-                                                                  context,
-                                                                  MaterialPageRoute(
-                                                                      builder:
-                                                                          (context) =>
-                                                                              const LoginPage()));
-                                                            },
-                                                            child: Container(
-                                                              height: 24.h,
-                                                              width: 90.w,
-                                                              padding: EdgeInsets
-                                                                  .only(
-                                                                      left: 7.w,
-                                                                      right:
-                                                                          7.w,
-                                                                      top: 0.h,
-                                                                      bottom:
-                                                                          0.h),
-                                                              decoration: BoxDecoration(
+                                                      SizedBox(
+                                                        height: 20.h,
+                                                      ),
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          Navigator.pushReplacement(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          const LoginPage()));
+                                                        },
+                                                        child: Container(
+                                                          height: 24.h,
+                                                          width: 90.w,
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  left: 7.w,
+                                                                  right: 7.w,
+                                                                  top: 0.h,
+                                                                  bottom: 0.h),
+                                                          decoration: BoxDecoration(
+                                                              color: ColorConstants
+                                                                  .colorPrimary,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          30.h)),
+                                                          child: Center(
+                                                            child: Text(
+                                                              "Login",
+                                                              style: TextStyle(
+                                                                  fontFamily:
+                                                                      'PoppinsMedium',
                                                                   color: ColorConstants
-                                                                      .colorPrimary,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              30.h)),
-                                                              child: Center(
-                                                                child: Text(
-                                                                  "Login",
-                                                                  style: TextStyle(
-                                                                      fontFamily:
-                                                                          'PoppinsMedium',
-                                                                      color: ColorConstants
-                                                                          .colorWhite,
-                                                                      fontSize:
-                                                                          15.sp),
-                                                                ),
-                                                              ),
+                                                                      .colorWhite,
+                                                                  fontSize:
+                                                                      15.sp),
                                                             ),
-                                                          )
-                                                        ],
+                                                          ),
+                                                        ),
                                                       )
                                                     ],
                                                   )
-                                                : null
+                                                ],
+                                              )
                                             : null);
                                   }),
                               SizedBox(
@@ -416,7 +413,7 @@ class _HomePageState extends State<HomePage> {
                                     fit: BoxFit.fill,
                                   ),
                                 ),
-                                child: user == null
+                                child: (user == null && mobile == null)
                                     ? Row(
                                         children: [
                                           const Expanded(child: Text("")),
@@ -495,14 +492,10 @@ class _HomePageState extends State<HomePage> {
                                   return const Center(
                                     child: CircularProgressIndicator(),
                                   );
-                                } else if (!snapshot.hasData) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
                                 }
                                 Map data = jsonDecode(snapshot.data);
-                                List dataList = data['0'];
-                                if (dataList.isEmpty) {
+                                List? dataList = data['0'];
+                                if (dataList == null || dataList.isEmpty) {
                                   return const Center(
                                     child: Text('No Categories'),
                                   );
@@ -612,6 +605,7 @@ class _HomePageState extends State<HomePage> {
                               enquireId: operationEnquiry.id,
                               user: userList[index].id,
                               assigner: user?.id ?? '');
+                          Fluttertoast.showToast(msg: 'Assigned Successfully');
                           Navigator.pop(ctx ?? context);
                         } catch (e) {
                           print('Something went wrong!');
